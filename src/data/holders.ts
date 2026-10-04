@@ -16,9 +16,15 @@ async function getJson(url: string): Promise<unknown> {
   return res.json();
 }
 
+// A result far below the last known count almost certainly comes from a broken API response, not from real
+// holders leaving, so it is rejected and the next source is tried.
+const MIN_PLAUSIBLE = Math.floor(token.holders.value * 0.5);
+
 const toCount = (value: unknown) => {
-  const n = Number(value);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : undefined;
+  const n = Math.floor(Number(value));
+  if (!Number.isFinite(n) || n <= 0) return undefined;
+  if (n < MIN_PLAUSIBLE) throw new Error(`implausible holder count ${n} (expected at least ${MIN_PLAUSIBLE})`);
+  return n;
 };
 
 async function fromBasescan(apiKey: string) {

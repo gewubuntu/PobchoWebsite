@@ -4,7 +4,8 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches: [main]
-  # Daily rebuild keeps build-time data (holder count) fresh.
+  # Daily rebuild keeps build-time data (holder count) fresh. GitHub disables scheduled workflows after 60 days
+  # without repository activity – re-enable it under Actions → "Deploy to GitHub Pages" if that happens.
   schedule:
     - cron: "17 4 * * *"
   workflow_dispatch:

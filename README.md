@@ -53,7 +53,8 @@ Price, market cap, 24h volume and 24h transactions are fetched in the browser fr
 
 The holder count is fetched at build time (`src/data/holders.ts`): from Basescan (Etherscan V2 API) when the
 `BASESCAN_API_KEY` environment variable is set, otherwise from the free Blockscout API for Base. If both fail, the
-build uses the fallback value `token.holders` in `src/data/site.ts` and shows it with a "+". Note that Etherscan's
+build uses the fallback value `token.holders` in `src/data/site.ts` and shows it with a "+". Results below half of
+that fallback value are treated as a broken API response and skipped, so raise the fallback now and then. Note that Etherscan's
 holder-count endpoint requires an API PRO plan; without it the build falls back to Blockscout automatically.
 
 ## Deployment
@@ -62,6 +63,8 @@ holder-count endpoint requires an API PRO plan; without it the build falls back 
 - `main` – production. Pushes deploy to GitHub Pages via `.github/workflows/deploy.yml`. The site is also rebuilt
   daily at 04:17 UTC so the holder count stays current. Add `BASESCAN_API_KEY` under
   **Settings → Secrets and variables → Actions** to use Basescan.
+  GitHub turns scheduled workflows off after 60 days without any repository activity. If the holder count stops
+  updating, check **Actions → Deploy to GitHub Pages** and click **Enable workflow**.
 
 GitHub Pages must be set to **Settings → Pages → Build and deployment → Source: GitHub Actions** (the old setup served the repository root directly). The custom domain comes from `public/CNAME`.
 

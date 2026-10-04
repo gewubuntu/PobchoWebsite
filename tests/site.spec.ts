@@ -1,31 +1,39 @@
-import { expect, test } from "@playwright/test";
+import { expect, test as base } from "@playwright/test";
 
-// Live market data comes from DEX Screener; tests must not depend on it.
-test.beforeEach(async ({ page }) => {
-  await page.route("https://api.dexscreener.com/**", (route) =>
-    route.fulfill({
-      json: {
-        pair: {
-          chainId: "base",
-          baseToken: { address: "0xC2fE011C3885277c7F0e7ffd45Ff90cADc8ECD12", symbol: "PONCHO" },
-          priceUsd: "0.01234",
-          priceChange: { h24: 5.5 },
-          marketCap: 1_234_567,
-          volume: { h24: 45_678 },
-          txns: { h24: { buys: 300, sells: 200 } },
+type Options = {
+  /** Consent choice stored before the page loads; `null` simulates a first visit (banner visible). */
+  consent: "granted" | "denied" | null;
+};
+
+const test = base.extend<Options>({
+  consent: ["denied", { option: true }],
+  page: async ({ page, consent }, use) => {
+    // Live market data comes from DEX Screener; tests must not depend on it.
+    await page.route("https://api.dexscreener.com/**", (route) =>
+      route.fulfill({
+        json: {
+          pair: {
+            chainId: "base",
+            baseToken: { address: "0xC2fE011C3885277c7F0e7ffd45Ff90cADc8ECD12", symbol: "PONCHO" },
+            priceUsd: "0.01234",
+            priceChange: { h24: 5.5 },
+            marketCap: 1_234_567,
+            volume: { h24: 45_678 },
+            txns: { h24: { buys: 300, sells: 200 } },
+          },
         },
-      },
-    }),
-  );
-  await page.route(/googletagmanager|google-analytics/, (route) => route.abort());
-  // Consent is covered by its own tests; elsewhere start with a stored choice so the banner stays out of the way.
-  if (!test.info().title.startsWith("consent")) {
-    await page.addInitScript(() => localStorage.setItem("poncho-consent-v1", "denied"));
-  }
+      }),
+    );
+    await page.route(/googletagmanager|google-analytics/, (route) => route.abort());
+    if (consent) await page.addInitScript((choice) => localStorage.setItem("poncho-consent-v1", choice), consent);
+    await use(page);
+  },
 });
 
 test.describe("cookie consent", () => {
-  test("consent: analytics only loads after accepting", async ({ page }) => {
+  test.use({ consent: null });
+
+  test("analytics only loads after accepting", async ({ page }) => {
     const gaRequests: string[] = [];
     page.on("request", (req) => req.url().includes("googletagmanager") && gaRequests.push(req.url()));
 
@@ -43,7 +51,7 @@ test.describe("cookie consent", () => {
     await expect(banner).toBeHidden();
   });
 
-  test("consent: declining keeps analytics off and can be changed later", async ({ page }) => {
+  test("declining keeps analytics off and can be changed later", async ({ page }) => {
     const gaRequests: string[] = [];
     page.on("request", (req) => req.url().includes("googletagmanager") && gaRequests.push(req.url()));
 
@@ -55,6 +63,18 @@ test.describe("cookie consent", () => {
 
     await page.getByRole("button", { name: "Cookie settings" }).click();
     await expect(page.locator("[data-consent]")).toBeVisible();
+  });
+
+  test("accepting again after declining re-enables analytics on the same page", async ({ page }) => {
+    await page.goto("/");
+    const banner = page.locator("[data-consent]");
+    await banner.getByRole("button", { name: "Accept" }).click();
+    await page.getByRole("button", { name: "Cookie settings" }).click();
+    await banner.getByRole("button", { name: "Decline" }).click();
+    expect(await page.evaluate(() => (window as unknown as Record<string, unknown>)["ga-disable-G-LBV1YCZ3ME"])).toBe(true);
+    await page.getByRole("button", { name: "Cookie settings" }).click();
+    await banner.getByRole("button", { name: "Accept" }).click();
+    expect(await page.evaluate(() => (window as unknown as Record<string, unknown>)["ga-disable-G-LBV1YCZ3ME"])).toBe(false);
   });
 });
 
@@ -140,6 +160,20 @@ test.describe("landing page", () => {
     await page.getByRole("button", { name: "Open menu" }).click();
     await page.keyboard.press("Escape");
     await expect(nav).toBeHidden();
+  });
+
+  test.describe("without JavaScript", () => {
+    test.use({ javaScriptEnabled: false, consent: null });
+
+    test("mobile navigation links stay reachable", async ({ page }) => {
+      await page.setViewportSize({ width: 390, height: 844 });
+      await page.goto("/");
+      const nav = page.getByRole("navigation", { name: "Main" });
+      await expect(nav.getByRole("link", { name: "FAQ" })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Open menu" })).toBeHidden();
+      const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+      expect(overflow).toBeLessThanOrEqual(0);
+    });
   });
 
   test("carousel buttons scroll the roadmap", async ({ page }) => {

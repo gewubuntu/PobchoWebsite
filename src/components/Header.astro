@@ -154,44 +154,74 @@ import { nav } from "../data/site";
       width: 125px;
     }
 
-    .header__toggle {
-      display: inline-flex;
+    // Without JavaScript the section links wrap onto a second row inside the bar.
+    .header__bar {
+      flex-wrap: wrap;
     }
 
-    // Mobile: the nav becomes a dropdown panel below the header bar.
+    .header__left {
+      display: contents;
+    }
+
     nav {
-      background: var(--poncho_orange);
-      border: 2px solid var(--poncho_white);
-      border-radius: var(--radius-card);
-      box-shadow: var(--glow-orange);
-      display: none;
-      left: 20px;
-      margin: 0;
-      padding: 10px;
-      position: absolute;
-      right: 20px;
-      top: calc(100% - 10px);
+      flex-basis: 100%;
+      margin: 5px 0 0;
+      order: 3;
 
       ul {
-        flex-direction: column;
-      }
-
-      a {
-        border-radius: 15px;
-        display: block;
-        font-size: 1.1rem;
-        padding: 12px 15px;
-
-        &:hover,
-        &:focus-visible {
-          background: rgb(29 26 122 / 0.12);
-          text-decoration: none;
-        }
+        flex-wrap: wrap;
+        justify-content: center;
       }
     }
 
-    .header.is-open nav {
-      display: block;
+    // With JavaScript the links move into a dropdown panel behind the menu button.
+    :global(.js) {
+      .header__bar {
+        flex-wrap: nowrap;
+      }
+
+      .header__left {
+        display: flex;
+      }
+
+      .header__toggle {
+        display: inline-flex;
+      }
+
+      nav {
+        background: var(--poncho_orange);
+        border: 2px solid var(--poncho_white);
+        border-radius: var(--radius-card);
+        box-shadow: var(--glow-orange);
+        display: none;
+        left: 20px;
+        margin: 0;
+        padding: 10px;
+        position: absolute;
+        right: 20px;
+        top: calc(100% - 10px);
+
+        ul {
+          flex-direction: column;
+        }
+
+        a {
+          border-radius: 15px;
+          display: block;
+          font-size: 1.1rem;
+          padding: 12px 15px;
+
+          &:hover,
+          &:focus-visible {
+            background: rgb(29 26 122 / 0.12);
+            text-decoration: none;
+          }
+        }
+      }
+
+      .header.is-open nav {
+        display: block;
+      }
     }
   }
 
@@ -205,7 +235,7 @@ import { nav } from "../data/site";
       width: 75px;
     }
 
-    nav {
+    :global(.js) nav {
       left: 15px;
       right: 15px;
     }

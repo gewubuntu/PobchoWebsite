@@ -28,10 +28,11 @@ function storeChoice(choice: Choice) {
 let analyticsLoaded = false;
 
 function loadAnalytics() {
+  const w = window as unknown as { dataLayer: unknown[]; gtag: (...args: unknown[]) => void } & Record<string, unknown>;
+  // Reset before the early return so accepting again after declining (same page view) re-enables tracking.
+  w[`ga-disable-${GA_ID}`] = false;
   if (analyticsLoaded) return;
   analyticsLoaded = true;
-  const w = window as unknown as { dataLayer: unknown[]; gtag: (...args: unknown[]) => void } & Record<string, unknown>;
-  w[`ga-disable-${GA_ID}`] = false;
   w.dataLayer = w.dataLayer || [];
   w.gtag = function gtag() {
     // gtag.js expects the arguments object, not an array.
