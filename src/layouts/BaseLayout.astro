@@ -1,0 +1,147 @@
+---
+import "../styles/global.scss";
+import { site, token, links } from "../data/site";
+import Header from "../components/Header.astro";
+import Footer from "../components/Footer.astro";
+import BackgroundImage from "../components/BackgroundImage.astro";
+import BuyDialog from "../components/BuyDialog.astro";
+import FloatingActions from "../components/FloatingActions.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+  /** Path of the page, used for the canonical URL. */
+  path?: string;
+  noindex?: boolean;
+  /** Show the floating "Memes" shortcut. */
+  memesShortcut?: boolean;
+}
+
+const { title = site.title, description = site.description, path = "/", noindex = false, memesShortcut = true } = Astro.props;
+
+const canonical = new URL(path, site.url).href;
+const ogImage = new URL("/og-image.png", site.url).href;
+
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Organization",
+      "@id": `${site.url}/#organization`,
+      name: site.name,
+      url: site.url,
+      logo: new URL("/android-chrome-512x512.png", site.url).href,
+      sameAs: [links.twitter, links.telegram, links.medium, links.coingecko, links.coinmarketcap, links.opensea],
+    },
+    {
+      "@type": "WebSite",
+      "@id": `${site.url}/#website`,
+      name: site.name,
+      url: site.url,
+      description: site.description,
+      publisher: { "@id": `${site.url}/#organization` },
+    },
+    {
+      "@type": "Thing",
+      name: `$${token.symbol}`,
+      description: `${token.symbol} token on Base. Contract address ${token.address}.`,
+      url: site.url,
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <link rel="canonical" href={canonical} />
+    <meta name="robots" content={noindex ? "noindex,follow" : "index,follow"} />
+    <meta name="theme-color" content={site.themeColor} />
+    <meta name="color-scheme" content="dark" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={ogImage} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Poncho, the cutest cat on Base" />
+
+    <!-- Twitter / X -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:site" content={site.twitterHandle} />
+    <meta name="twitter:creator" content={site.twitterHandle} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImage} />
+
+    <!-- Icons -->
+    <link rel="icon" href="/favicon.ico" sizes="48x48" />
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png" />
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png" />
+    <link rel="mask-icon" href="/safari-pinned-tab.svg" color="#ff9900" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="msapplication-TileColor" content="#ff9900" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+
+    <script is:inline>document.documentElement.classList.add("js");</script>
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+    <!-- Google Analytics (loaded after the page is interactive) -->
+    <script is:inline define:vars={{ id: site.analyticsId }}>
+      window.dataLayer = window.dataLayer || [];
+      function gtag() { dataLayer.push(arguments); }
+      gtag("js", new Date());
+      gtag("config", id);
+      addEventListener("load", () => {
+        const s = document.createElement("script");
+        s.async = true;
+        s.src = "https://www.googletagmanager.com/gtag/js?id=" + id;
+        document.head.appendChild(s);
+      }, { once: true });
+    </script>
+
+    <slot name="head" />
+  </head>
+  <body>
+    <a class="button button--blue skip-link" href="#main">Skip to main content</a>
+    <BackgroundImage />
+    <Header />
+    <main id="main" tabindex="-1">
+      <slot />
+    </main>
+    <Footer />
+    <FloatingActions showMemes={memesShortcut} />
+    <BuyDialog />
+    <slot name="after" />
+  </body>
+</html>
+
+<style lang="scss">
+  main:focus {
+    outline: none;
+  }
+
+  .skip-link {
+    left: 30px;
+    position: absolute;
+    top: -100px;
+    z-index: 10002;
+
+    &:focus {
+      top: 30px;
+    }
+  }
+</style>
+
+<script>
+  import "../scripts/reveal";
+</script>

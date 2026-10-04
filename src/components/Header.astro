@@ -1,0 +1,118 @@
+---
+import { Image } from "astro:assets";
+import logo from "../assets/img/logo.png";
+import { nav } from "../data/site";
+---
+
+<header class="header">
+  <div class="container">
+    <div class="header__bar">
+      <div class="header__left">
+        <a class="header__logo" href="/" aria-label="Poncho on Base – Home">
+          <Image src={logo} alt="Poncho on Base" widths={[150, 300]} sizes="(max-width: 768px) 75px, (max-width: 1024px) 125px, 150px" loading="eager" />
+        </a>
+        <nav aria-label="Main">
+          <ul>
+            {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+          </ul>
+        </nav>
+      </div>
+      <div class="header__actions">
+        <a class="button button--blue" href="/memes/">Memes</a>
+        <button class="button button--blue" type="button" data-open-buy>Buy <span class="xs-hide">Now</span></button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .header {
+    position: relative;
+    z-index: 100;
+  }
+
+  .header__bar {
+    align-items: center;
+    background: var(--poncho_orange);
+    border: 2px solid var(--poncho_white);
+    border-radius: var(--radius-pill);
+    display: flex;
+    justify-content: space-between;
+    margin: 30px;
+    padding: 10px 20px;
+  }
+
+  .header__left {
+    align-items: center;
+    display: flex;
+  }
+
+  .header__logo {
+    display: block;
+    line-height: 0;
+
+    img {
+      width: 150px;
+    }
+  }
+
+  nav {
+    margin: 20px;
+
+    ul {
+      display: flex;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    a {
+      color: var(--poncho_blue);
+      display: inline-block;
+      font-weight: 700;
+      padding: 0 10px;
+      text-decoration: none;
+
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+
+  .header__actions {
+    display: flex;
+  }
+
+  @include media("lg") {
+    .header__bar {
+      margin: 20px;
+    }
+
+    .header__logo img {
+      width: 125px;
+    }
+
+    nav {
+      display: none;
+    }
+  }
+
+  @include media("sm") {
+    .header__bar {
+      margin: 15px;
+      padding: 10px 15px;
+    }
+
+    .header__logo img {
+      width: 75px;
+    }
+  }
+
+  @include media("xs") {
+    .xs-hide {
+      display: none;
+    }
+  }
+</style>

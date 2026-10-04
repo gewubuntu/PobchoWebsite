@@ -1,0 +1,124 @@
+---
+import { Picture } from "astro:assets";
+import Carousel from "./Carousel.astro";
+import { links } from "../data/site";
+
+import cutestCat from "../assets/img/poncho_cutest_cat.png";
+import whatWereDoing from "../assets/img/poncho_what_were_doing.png";
+import forThePeople from "../assets/img/poncho_for_the_people.png";
+
+const pictureProps = {
+  widths: [250, 350, 700],
+  sizes: "(max-width: 1024px) 100vw, (max-width: 1200px) 250px, 350px",
+  formats: ["avif"] as "avif"[],
+  fallbackFormat: "webp" as const,
+  loading: "lazy" as const,
+};
+---
+
+<section class="about background--blue-dark" id="about" aria-labelledby="about-title">
+  <div class="section-inner reveal">
+    <h2 class="text-align-center" id="about-title">About</h2>
+    <div class="container">
+      <Carousel label="About Poncho">
+        <article class="lore">
+          <Picture src={cutestCat} alt="Poncho" {...pictureProps} />
+          <div class="lore__text">
+            <h3>Cutest Cat on Base</h3>
+            <p>Poncho is welcoming. Poncho is friendly. Poncho is cute. Poncho has mainstream appeal.</p>
+            <p>
+              There are no strings attached to Poncho. He is not related to anyone, he is not anyone’s cat, he is simply a
+              cute cat wearing a poncho. Nothing needs to be said beyond, “I think that cat is cute.” And that is what we
+              want — simplicity.
+            </p>
+            <button class="button button--blue" type="button" data-open-buy>Buy Now</button>
+          </div>
+        </article>
+
+        <article class="lore">
+          <Picture src={whatWereDoing} alt="Poncho" {...pictureProps} />
+          <div class="lore__text">
+            <h3>What We’re Doing</h3>
+            <p>
+              What we are striving to do is very straightforward: making things easy. A new crypto denizen’s foray into the
+              space will be buying Poncho and joining a welcoming, active community of helpful individuals.
+            </p>
+            <p>
+              Beyond that, we have some incredibly innovative ideas to help bring everyone on-chain. Poncho is
+              family-friendly, so it only makes sense. These ideas are in the planning stages right now, but expect to hear
+              more in due time!
+            </p>
+            <a class="button button--blue" href={links.telegram} target="_blank" rel="noopener">Join Community</a>
+          </div>
+        </article>
+
+        <article class="lore">
+          <Picture src={forThePeople} alt="Poncho" {...pictureProps} />
+          <div class="lore__text">
+            <h3>For The People</h3>
+            <p>
+              As you can see, Poncho is for the people. Poncho is everyone’s cat. And he’s wearing a poncho. He’s here to
+              help, and with the help of Base, his dreams are achievable.
+            </p>
+            <p>So, come be a part of the <strong>#PonchoPals</strong>, and join Poncho on his journey to the stars!</p>
+            <a class="button button--blue" href={links.forThePeople} target="_blank" rel="noopener">Read the Story</a>
+          </div>
+        </article>
+      </Carousel>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .lore {
+    align-items: center;
+    background: linear-gradient(90deg, var(--poncho_blue) 0%, var(--poncho_blue_dark) 40%);
+    border-radius: var(--radius-card);
+    display: flex;
+    padding: 30px;
+    width: 100%;
+
+    :global(img) {
+      border-radius: 5px;
+      display: block;
+      flex-shrink: 0;
+      margin: 30px;
+      max-width: 350px;
+    }
+  }
+
+  .lore__text {
+    padding: 30px;
+
+    .button {
+      margin-top: 15px;
+    }
+  }
+
+  @include media("xl") {
+    .lore :global(img) {
+      max-width: 250px;
+    }
+  }
+
+  @include media("lg") {
+    .lore {
+      background: none;
+      flex-direction: column;
+      padding: 0;
+      text-align: center;
+
+      :global(img) {
+        margin: 0 0 20px;
+        max-width: 100%;
+        width: 100%;
+      }
+    }
+
+    .lore__text {
+      padding: 0;
+    }
+  }
+</style>

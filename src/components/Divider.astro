@@ -1,0 +1,41 @@
+---
+import { Image } from "astro:assets";
+import baseLogo from "../assets/img/base_two.png";
+
+interface Props {
+  before: string;
+}
+
+const { before } = Astro.props;
+---
+
+<div class="divider background--blue reveal">
+  <p class="h3 divider__text">
+    {before}
+    <Image src={baseLogo} alt="" width={60} height={60} />
+    Base
+  </p>
+</div>
+
+<style>
+  .divider {
+    border-bottom: 2px solid var(--poncho_white);
+    border-top: 2px solid var(--poncho_white);
+  }
+
+  .divider__text {
+    align-items: center;
+    color: var(--poncho_white);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    margin: 30px;
+    text-align: center;
+  }
+
+  img {
+    height: 30px;
+    margin: 0 5px 0 10px;
+    width: 30px;
+  }
+</style>

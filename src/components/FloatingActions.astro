@@ -1,0 +1,126 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  /** Hide the memes shortcut (e.g. on the memes page itself). */
+  showMemes?: boolean;
+}
+
+const { showMemes = true } = Astro.props;
+---
+
+<div class="floating" data-floating hidden>
+  <button class="button button--blue floating__buy" type="button" data-open-buy>
+    <video autoplay loop muted playsinline poster="/video/poncho-dance-poster.png" width="48" height="50" aria-hidden="true">
+      <source src="/video/poncho-dance.webm" type="video/webm" />
+      <source src="/video/poncho-dance.mp4" type="video/mp4" />
+    </video>
+    Buy
+  </button>
+  {showMemes && <a class="button button--blue" href="/memes/">Memes</a>}
+  <a class="button button--blue floating__top" href="#main" aria-label="Back to top">
+    <Icon name="fa6-solid:chevron-up" class="icon" />
+  </a>
+</div>
+
+<script>
+  const floating = document.querySelector<HTMLElement>("[data-floating]");
+  if (floating) {
+    const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduce) floating.querySelector("video")?.removeAttribute("autoplay");
+
+    let ticking = false;
+    const update = () => {
+      floating.hidden = scrollY < innerHeight;
+      ticking = false;
+    };
+    addEventListener(
+      "scroll",
+      () => {
+        if (!ticking) requestAnimationFrame(update);
+        ticking = true;
+      },
+      { passive: true },
+    );
+    update();
+
+    floating.querySelector(".floating__top")?.addEventListener("click", (event) => {
+      event.preventDefault();
+      scrollTo({ top: 0, behavior: reduce ? "auto" : "smooth" });
+      document.getElementById("main")?.focus({ preventScroll: true });
+    });
+  }
+</script>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .floating {
+    align-items: flex-end;
+    bottom: 30px;
+    display: flex;
+    flex-direction: column;
+    position: fixed;
+    right: 30px;
+    z-index: 1000;
+
+    &[hidden] {
+      display: none;
+    }
+
+    .button {
+      margin: 5px 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .floating:not([hidden]) {
+      animation: fade-in 150ms ease-out;
+    }
+
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+    }
+  }
+
+  .floating__buy {
+    overflow: hidden;
+    padding-left: 55px;
+
+    video {
+      border-radius: 50%;
+      height: 100%;
+      left: 0;
+      object-fit: cover;
+      position: absolute;
+      top: 0;
+      width: auto;
+    }
+  }
+
+  .floating__top {
+    border-radius: 50%;
+    margin-top: 10px !important;
+    padding: 15px;
+  }
+
+  @include media("lg") {
+    .floating {
+      bottom: 20px;
+      right: 20px;
+    }
+
+    .floating__buy {
+      padding-left: 45px;
+    }
+  }
+
+  @include media("sm") {
+    .floating {
+      bottom: 15px;
+      right: 15px;
+    }
+  }
+</style>

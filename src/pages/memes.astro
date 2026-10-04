@@ -1,0 +1,479 @@
+---
+import fs from "node:fs";
+import path from "node:path";
+import { Icon } from "astro-icon/components";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Accordion from "../components/Accordion.astro";
+import { assetGroups, templates, toTitle } from "../data/memes";
+import { links } from "../data/site";
+
+// Asset lists are read from disk at build time, so adding a PNG to public/memes/assets/<group>/ is enough.
+const assetsDir = path.join(process.cwd(), "public/memes/assets");
+const assets = Object.fromEntries(
+  assetGroups.map(({ id }) => [
+    id,
+    fs
+      .readdirSync(path.join(assetsDir, id))
+      .filter((file) => /\.(png|jpe?g|webp)$/i.test(file))
+      .sort((a, b) => a.localeCompare(b)),
+  ]),
+);
+---
+
+<BaseLayout
+  title="Ponchify Memes | Poncho on Base"
+  description="Create your own Poncho meme: pick a template, add Poncho traits, text and emojis, then download and share it with #Ponchify."
+  path="/memes/"
+  memesShortcut={false}
+>
+  <section class="memes">
+    <div class="container container--padded">
+      <div class="section-inner">
+        <div class="memes__card">
+          <header class="memes__header">
+            <h1 class="h2">Ponchify Memes</h1>
+            <p>
+              Share your creations on <a href={links.twitter} target="_blank" rel="noopener">Twitter / X</a> with
+              #Ponchify and <a href={links.telegram} target="_blank" rel="noopener">Telegram</a>.
+            </p>
+          </header>
+
+          <div class="generator" data-generator data-assets={JSON.stringify(assets)}>
+            <div class="generator__stage">
+              <div class="generator__toolbar" role="toolbar" aria-label="Meme actions">
+                <button class="button button--red-inverse" type="button" data-action="reset" aria-label="Reset" title="Reset">
+                  <Icon name="fa6-solid:arrows-rotate" class="icon" />
+                </button>
+                <button class="button button--orange-inverse" type="button" data-action="edit" aria-label="Edit" title="Edit">
+                  <Icon name="fa6-solid:pen" class="icon" />
+                </button>
+                <button class="button button--green-inverse" type="button" data-action="save" aria-label="Save as image" title="Save as image">
+                  <Icon name="fa6-solid:floppy-disk" class="icon" />
+                </button>
+                <button class="button button--blue" type="button" data-action="download" aria-label="Download" title="Download">
+                  <Icon name="fa6-solid:download" class="icon" />
+                </button>
+                <button class="button button--blue generator__expand" type="button" data-action="expand" aria-label="Expand" title="Expand" aria-pressed="false">
+                  <span data-icon-expand><Icon name="fa6-solid:expand" class="icon" /></span>
+                  <span data-icon-compress hidden><Icon name="fa6-solid:compress" class="icon" /></span>
+                </button>
+              </div>
+              <div class="generator__canvas" data-canvas-wrap>
+                <canvas id="meme-canvas" aria-label="Meme canvas"></canvas>
+              </div>
+            </div>
+
+            <div class="generator__controls">
+              <div class="generator__toolbar" role="toolbar" aria-label="Add to meme">
+                <button class="button button--blue" type="button" data-action="text" aria-label="Add text" title="Add text">
+                  <Icon name="fa6-solid:paragraph" class="icon" /> <span class="xs-hide">Text</span>
+                </button>
+                <label class="button button--blue generator__file">
+                  <input type="file" accept="image/png,image/jpeg" data-upload="image" />
+                  <Icon name="fa6-solid:image" class="icon" /> <span class="xs-hide">Image</span>
+                  <span class="sr-only">Add image</span>
+                </label>
+                <button class="button button--blue" type="button" data-action="emoji" aria-label="Add emoji" title="Add emoji" aria-expanded="false">
+                  <Icon name="fa6-regular:face-smile" class="icon" />
+                </button>
+                <button class="button button--blue" type="button" data-action="shape" aria-label="Add shape" title="Add shape">
+                  <Icon name="fa6-solid:shapes" class="icon" />
+                </button>
+              </div>
+              <div class="generator__emoji" data-emoji-wrap hidden></div>
+
+              <Accordion title="Select Template" class="generator__accordion">
+                <div class="gallery">
+                  <label class="button button--blue gallery__upload" title="Upload template">
+                    <input type="file" accept="image/png,image/jpeg" data-upload="template" />
+                    <Icon name="fa6-solid:upload" class="icon" />
+                    <span class="sr-only">Upload template</span>
+                  </label>
+                  {
+                    templates.map((template) => (
+                      <button class="gallery__item" type="button" data-template={template.name} title={toTitle(template.name)} aria-pressed="false">
+                        <img src={`/memes/templates/small/${template.name}.png`} alt={toTitle(template.name)} loading="lazy" width="150" height="150" />
+                      </button>
+                    ))
+                  }
+                </div>
+                <p class="font--small text-align-center generator__hint">
+                  <strong>NOTE:</strong> Looking for more memes to Ponchify?
+                  <a class="no-wrap" href={links.memeTemplates} target="_blank" rel="noopener">Browse templates</a>
+                </p>
+              </Accordion>
+
+              <Accordion title="Select Assets" class="generator__accordion">
+                <div class="generator__selects">
+                  <label>
+                    <span class="sr-only">Asset type</span>
+                    <select data-asset-group>
+                      {assetGroups.map((group, i) => <option value={group.id}>{i + 1} – {group.label}</option>)}
+                    </select>
+                  </label>
+                  <label>
+                    <span class="sr-only">Asset size</span>
+                    <select data-asset-size>
+                      <option value="50">50%</option>
+                      <option value="100" selected>100%</option>
+                    </select>
+                  </label>
+                </div>
+                <div class="gallery" data-asset-gallery></div>
+              </Accordion>
+
+              <Accordion title="Manage Layers" class="generator__accordion" open>
+                <ul class="layers" data-layers></ul>
+              </Accordion>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="toast" data-toast hidden role="status" aria-live="polite">
+    <div class="toast__inner">
+      <button class="toast__close button button--blue" type="button" aria-label="Close" data-toast-close>
+        <Icon name="fa6-solid:xmark" class="icon" />
+      </button>
+      <div data-toast-message></div>
+    </div>
+  </div>
+
+  <!-- Icon templates cloned by the generator script -->
+  <template data-icon="grip"><Icon name="fa6-solid:grip-vertical" class="icon" /></template>
+  <template data-icon="delete"><Icon name="fa6-solid:xmark" class="icon" /></template>
+  <template data-icon="success"><Icon name="fa6-solid:check" class="icon font--green" /></template>
+  <template data-icon="error"><Icon name="fa6-solid:xmark" class="icon font--red" /></template>
+</BaseLayout>
+
+<script>
+  import { initMemeGenerator } from "../scripts/memes/generator";
+  initMemeGenerator();
+</script>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .memes__card {
+    background: var(--poncho_blue_dark);
+    border-radius: var(--radius-card);
+    box-shadow: var(--glow-orange);
+    padding: 40px 30px 30px;
+  }
+
+  .memes__header {
+    margin-bottom: 20px;
+    text-align: center;
+
+    h1 {
+      margin-bottom: 15px;
+    }
+  }
+
+  .generator {
+    display: flex;
+    gap: 30px;
+  }
+
+  .generator__stage,
+  .generator__controls {
+    min-width: 0;
+    width: 50%;
+  }
+
+  .generator--expanded {
+    flex-direction: column;
+
+    .generator__stage,
+    .generator__controls {
+      width: 100%;
+    }
+  }
+
+  .generator__toolbar {
+    display: flex;
+    justify-content: center;
+    margin: 0 auto 15px;
+    overflow-x: auto;
+
+    .button {
+      border-radius: 5px;
+    }
+  }
+
+  .generator__canvas {
+    position: relative;
+
+    :global(canvas) {
+      border: 2px dotted var(--poncho_white);
+      height: auto !important;
+      width: 100% !important;
+    }
+
+    :global(.canvas-container) {
+      height: auto !important;
+      width: 100% !important;
+    }
+
+    // Saved PNG shown on top of the canvas so it can be long-pressed / right-clicked.
+    :global(.generator__saved) {
+      inset: 0;
+      position: absolute;
+      width: 100%;
+      z-index: 1;
+    }
+  }
+
+  .generator__file {
+    input {
+      height: 1px;
+      opacity: 0;
+      position: absolute;
+      width: 1px;
+    }
+
+    &:focus-within {
+      outline: 3px solid var(--poncho_orange);
+      outline-offset: 3px;
+    }
+  }
+
+  .generator__emoji {
+    margin: 5px 0 15px;
+
+    :global(emoji-picker) {
+      --background: var(--poncho_white);
+      --border-color: var(--poncho_grey);
+      --indicator-color: var(--poncho_blue);
+      --num-columns: 9;
+      --outline-color: var(--poncho_orange);
+      height: 30vh;
+      width: 100%;
+    }
+  }
+
+  .generator__accordion {
+    margin: 0 0 20px;
+  }
+
+  .generator__selects {
+    display: flex;
+    gap: 10px;
+
+    label:first-child {
+      flex: 1;
+    }
+  }
+
+  .generator__hint {
+    margin: 20px 0 0;
+  }
+
+  .gallery {
+    display: grid;
+    gap: 10px;
+    grid-template-columns: repeat(auto-fill, minmax(20%, 1fr));
+    max-height: 30vh;
+    overflow-y: auto;
+
+    :global(.gallery__item) {
+      aspect-ratio: 1;
+      background: var(--poncho_white);
+      border: 5px solid transparent;
+      padding: 0;
+
+      &[aria-pressed="true"] {
+        border-color: var(--poncho_green);
+      }
+
+      :global(img) {
+        display: block;
+        height: 100%;
+        object-fit: contain;
+        width: 100%;
+      }
+    }
+
+    .gallery__upload {
+      aspect-ratio: 1;
+      border-radius: 5px;
+      font-size: 1.5rem;
+      margin: 0;
+
+      input {
+        height: 1px;
+        opacity: 0;
+        position: absolute;
+        width: 1px;
+      }
+    }
+  }
+
+  .layers {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+
+    :global(li) {
+      align-items: center;
+      border: 5px solid transparent;
+      cursor: grab;
+      display: flex;
+      gap: 10px;
+      margin-bottom: 10px;
+      padding: 10px 0 10px 5px;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+
+    :global(li.is-active) {
+      border-color: var(--poncho_green);
+    }
+
+    :global(.layers__grip) {
+      opacity: 0.3;
+    }
+
+    :global(.layers__select) {
+      align-items: center;
+      display: flex;
+      flex: 1;
+      gap: 10px;
+      min-width: 0;
+      text-align: left;
+    }
+
+    :global(.layers__preview) {
+      flex-shrink: 0;
+      max-height: 100px;
+      max-width: 20%;
+      position: relative;
+    }
+
+    :global(.layers__rect) {
+      background: var(--poncho_white);
+      border: 3px solid #000;
+      display: block;
+      height: 60px;
+      width: 60px;
+    }
+
+    :global(.layers__text) {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: pre-line;
+    }
+
+    :global(.layers__delete) {
+      font-size: 1.1rem;
+      padding: 10px 15px;
+    }
+  }
+
+  .toast {
+    bottom: 0;
+    left: 0;
+    padding: 0 30px;
+    pointer-events: none;
+    position: fixed;
+    right: 0;
+    text-align: center;
+    z-index: 2000;
+
+    &[hidden] {
+      display: none;
+    }
+  }
+
+  .toast__inner {
+    background: var(--poncho_blue);
+    border-bottom: 5px solid var(--poncho_orange);
+    border-radius: 5px;
+    box-shadow: var(--glow-orange);
+    display: inline-block;
+    margin: 0 0 30px;
+    max-width: 690px;
+    padding: 30px;
+    pointer-events: all;
+    position: relative;
+    text-align: left;
+
+    :global(p:last-child) {
+      margin-bottom: 0;
+    }
+  }
+
+  .toast__close {
+    border-radius: 50%;
+    box-shadow: var(--glow-blue);
+    padding: 5px 10px;
+    position: absolute;
+    right: -17.5px;
+    top: -17.5px;
+  }
+
+  @include media("lg") {
+    .memes__card {
+      padding: 30px 20px 20px;
+    }
+
+    .generator {
+      flex-direction: column;
+    }
+
+    .generator__stage,
+    .generator__controls {
+      width: 100%;
+    }
+
+    .generator__expand {
+      display: none;
+    }
+
+    .toast {
+      padding: 0 20px;
+    }
+
+    .toast__inner {
+      margin: 0 0 20px;
+      padding: 20px;
+    }
+  }
+
+  @include media("sm") {
+    .gallery {
+      gap: 7.5px;
+
+      :global(.gallery__item) {
+        border-width: 3px;
+      }
+    }
+
+    .layers :global(li) {
+      border-width: 3px;
+      padding: 7.5px 0 7.5px 5px;
+    }
+  }
+
+  @include media("xs") {
+    .xs-hide {
+      display: none;
+    }
+
+    .gallery {
+      gap: 5px;
+
+      :global(.gallery__item) {
+        border-width: 2px;
+      }
+    }
+
+    .layers :global(li) {
+      border-width: 2px;
+    }
+  }
+</style>

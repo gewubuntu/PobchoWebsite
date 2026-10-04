@@ -1,0 +1,347 @@
+---
+import { Image, Picture } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import Carousel from "./Carousel.astro";
+import { links, token } from "../data/site";
+import { formatCompact } from "../scripts/format";
+
+import poncho from "../assets/img/poncho.png";
+import baseLogo from "../assets/img/base.png";
+import twitter from "../assets/img/twitter.png";
+import telegram from "../assets/img/telegram.png";
+import dexscreener from "../assets/img/dexscreener.png";
+import coinmarketcap from "../assets/img/coinmarketcap.png";
+import coingecko from "../assets/img/coingecko.png";
+import medium from "../assets/img/medium.png";
+
+const socials = [
+  { href: links.twitter, label: "Twitter / X", img: twitter },
+  { href: links.telegram, label: "Telegram", img: telegram },
+  { href: links.dexscreener, label: "DEX Screener", img: dexscreener },
+  { href: links.coinmarketcap, label: "CoinMarketCap", img: coinmarketcap },
+  { href: links.coingecko, label: "CoinGecko", img: coingecko },
+  { href: links.medium, label: "Medium", img: medium },
+];
+
+type Stat = { label: string; value?: number; prefix?: string; suffix?: string; live?: string };
+
+const stats: Stat[] = [
+  { label: "Max Total Supply", value: token.maxSupply },
+  { label: "Holders", value: token.holders.value, suffix: "+" },
+  { label: "Market Cap", prefix: "$", live: "marketCap" },
+  { label: "Volume (24H)", prefix: "$", live: "volume" },
+  { label: "Transactions (24H)", live: "transactions" },
+  { label: `LP Locked on UNCX`, value: token.lpLockYears, suffix: "Y" },
+];
+---
+
+<section class="hero" id="home">
+  <div class="container container--padded">
+    <div class="section-inner hero__grid">
+      <div class="hero__image">
+        <Picture
+          src={poncho}
+          alt="Poncho"
+          widths={[350, 500, 700, 1000]}
+          sizes="(max-width: 1024px) 350px, 500px"
+          formats={["avif"]}
+          fallbackFormat="webp"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+
+      <div class="hero__content">
+        <div class="hero__heading">
+          <h1>$PONCHO</h1>
+          <span class="hero__price" data-price>
+            <span class="hero__price-dir" data-price-up hidden><Icon name="fa6-solid:arrow-up-long" class="icon" /></span>
+            <span class="hero__price-dir" data-price-down hidden><Icon name="fa6-solid:arrow-down-long" class="icon" /></span>
+            <span data-price-text></span>
+          </span>
+        </div>
+
+        <p class="hero__description">
+          Poncho is the <strong>cutest</strong> cat on Base with the strongest community. The friendly face that welcomes
+          all <a class="no-wrap" href={links.smartWallet} target="_blank" rel="noopener">Smart Wallet</a> users.
+        </p>
+
+        <button class="button button--blue hero__buy" type="button" data-open-buy>Buy $PONCHO</button>
+
+        <ul class="hero__socials">
+          {
+            socials.map((social) => (
+              <li>
+                <a href={social.href} target="_blank" rel="noopener" aria-label={social.label} title={social.label}>
+                  <Image src={social.img} alt="" width={124} height={124} />
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+
+        <button class="contract" type="button" data-copy={token.address} data-tooltip="Copy Address">
+          <Image class="contract__logo" src={baseLogo} alt="" width={100} height={100} />
+          <span class="contract__address"><span class="sr-only">Contract address: </span>{token.address}</span>
+          <Icon name="fa6-solid:copy" class="icon contract__icon" />
+          <span class="sr-only" data-copy-status aria-live="polite"></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <Carousel label="Token statistics" class="hero__stats">
+    {
+      stats.map((stat) => (
+        <div class="stat">
+          {/* prettier-ignore */}
+          <p class="h3 stat__value" data-live={stat.live} data-count={stat.value}>{stat.prefix}<span data-count-target>{stat.value === undefined ? "–" : formatCompact(stat.value)}</span>{stat.suffix}</p>
+          <p class="stat__label">{stat.label}</p>
+        </div>
+      ))
+    }
+  </Carousel>
+</section>
+
+<script>
+  import "../scripts/hero";
+</script>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .hero__grid {
+    align-items: flex-end;
+    display: flex;
+    flex-direction: row-reverse;
+  }
+
+  .hero__image {
+    width: 40%;
+
+    :global(img) {
+      display: block;
+      max-width: 500px;
+      width: 100%;
+    }
+  }
+
+  .hero__content {
+    padding-right: 4rem;
+    width: 60%;
+  }
+
+  .hero__heading {
+    align-items: baseline;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0 10px;
+    margin: 0 0 20px;
+  }
+
+  .hero__price {
+    font-weight: 600;
+    white-space: nowrap;
+
+    &[data-trend="up"] {
+      color: var(--poncho_green);
+    }
+
+    &[data-trend="down"] {
+      color: var(--poncho_red);
+    }
+  }
+
+  .hero__description {
+    font-size: 1.2rem;
+    line-height: 1.85rem;
+    margin-bottom: 20px;
+  }
+
+  .hero__buy {
+    font-size: 1.25rem;
+    margin-top: 10px;
+  }
+
+  .hero__socials {
+    display: flex;
+    gap: 10px;
+    list-style: none;
+    margin: 30px 0 0;
+    overflow-x: auto;
+    padding: 5px 0;
+
+    a {
+      background: var(--poncho_white);
+      border: 2px solid var(--poncho_white);
+      border-radius: 50%;
+      display: block;
+      height: 62px;
+      overflow: hidden;
+      width: 62px;
+    }
+
+    img {
+      border-radius: 50%;
+      display: block;
+      height: 100%;
+      transition: opacity 150ms $ease;
+      width: 100%;
+    }
+
+    a:hover img {
+      opacity: 0.85;
+    }
+  }
+
+  .contract {
+    align-items: center;
+    background: var(--poncho_grey);
+    border-radius: 10px;
+    color: #000;
+    display: flex;
+    gap: 10px;
+    margin: 20px 0 0;
+    max-width: 600px;
+    padding: 0 15px 0 0;
+    position: relative;
+    text-align: left;
+    width: 100%;
+
+    &::after {
+      background: var(--poncho_purple);
+      border-radius: 5px;
+      color: var(--poncho_white);
+      content: attr(data-tooltip);
+      font-size: 0.75rem;
+      line-height: 2em;
+      opacity: 0;
+      padding: 0 10px;
+      pointer-events: none;
+      position: absolute;
+      right: 0;
+      top: -1.9rem;
+      transition: opacity 150ms $ease;
+    }
+
+    &:hover::after,
+    &:focus-visible::after,
+    &.is-copied::after {
+      opacity: 1;
+    }
+
+    &.is-copied::after {
+      background: var(--poncho_green);
+    }
+  }
+
+  .contract__logo {
+    flex-shrink: 0;
+    height: 50px;
+    width: 50px;
+  }
+
+  .contract__address {
+    flex: 1;
+    font-size: 0.85rem;
+    min-width: 0;
+    overflow: hidden;
+    padding: 15px 0;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .contract__icon {
+    color: var(--poncho_grey_dark);
+  }
+
+  :global(.hero__stats) {
+    margin: 30px 15px;
+  }
+
+  .stat {
+    background: var(--poncho_blue_dark);
+    border-radius: var(--radius-card);
+    box-shadow: var(--glow-blue);
+    margin: 30px;
+    min-width: 200px;
+    padding: 30px;
+    text-align: center;
+  }
+
+  .stat__value {
+    font-variant-numeric: tabular-nums;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .stat__label {
+    font-size: 0.75rem;
+    font-style: italic;
+    margin: 0;
+  }
+
+  @media (hover: none) {
+    .hero__socials a:hover img {
+      opacity: 1;
+    }
+  }
+
+  @include media("lg") {
+    .hero__grid {
+      flex-direction: column;
+      padding: 0 15px;
+    }
+
+    .hero__image {
+      text-align: center;
+      width: 100%;
+
+      :global(img) {
+        margin: 0 auto;
+        max-width: 350px;
+        position: relative;
+        top: -20px;
+      }
+    }
+
+    .hero__content {
+      padding: 0;
+      text-align: center;
+      width: 100%;
+    }
+
+    .hero__heading {
+      justify-content: center;
+    }
+
+    .hero__socials {
+      justify-content: center;
+    }
+
+    .contract {
+      margin: 20px auto 0;
+    }
+
+    :global(.hero__stats) {
+      margin: 30px 10px;
+    }
+
+    .stat {
+      margin: 30px 15px;
+      padding: 30px 15px;
+    }
+  }
+
+  @include media("sm") {
+    .hero__socials a {
+      height: 45px;
+      width: 45px;
+    }
+
+    .hero__heading {
+      flex-direction: column;
+      align-items: center;
+    }
+  }
+</style>

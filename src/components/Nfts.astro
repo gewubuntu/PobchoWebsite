@@ -1,0 +1,123 @@
+---
+import { Image, Picture, getImage } from "astro:assets";
+import { links } from "../data/site";
+
+import background from "../assets/img/background.png";
+import ponchoPals from "../assets/img/poncho_pals.png";
+import poster from "../assets/img/poncho_pals_poster.png";
+import opensea from "../assets/img/opensea.svg";
+
+const posterImage = await getImage({ src: poster, format: "webp", width: 600 });
+---
+
+<section class="nfts background--orange" id="nfts" aria-labelledby="nfts-title">
+  <div class="container container--padded">
+    <div class="section-inner reveal">
+      <div class="pals">
+        <Picture
+          class="pals__background"
+          src={background}
+          alt=""
+          widths={[700, 1400]}
+          sizes="700px"
+          formats={["avif"]}
+          fallbackFormat="webp"
+          quality={60}
+          loading="lazy"
+        />
+        <div class="pals__content">
+          <h2 class="sr-only" id="nfts-title">Poncho Pals NFTs</h2>
+          <Picture
+            class="pals__logo"
+            src={ponchoPals}
+            alt="Poncho Pals"
+            widths={[463, 926]}
+            sizes="463px"
+            formats={["avif"]}
+            fallbackFormat="webp"
+            loading="lazy"
+          />
+          <video class="pals__video" autoplay loop muted playsinline preload="none" poster={posterImage.src} width="400" height="400" aria-label="Poncho Pals collection preview">
+            <source src="/video/poncho-pals.webm" type="video/webm" />
+            <source src="/video/poncho-pals.mp4" type="video/mp4" />
+          </video>
+          <a class="button button--blue" href={links.opensea} target="_blank" rel="noopener">
+            <Image src={opensea} alt="" width={40} height={40} />
+            Explore Collection
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  // Respect reduced-motion preferences for the looping preview.
+  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    document.querySelectorAll<HTMLVideoElement>(".pals__video").forEach((video) => {
+      video.removeAttribute("autoplay");
+      video.pause();
+    });
+  }
+</script>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .pals {
+    position: relative;
+  }
+
+  :global(.pals__background) {
+    border: 2px solid var(--poncho_white);
+    border-radius: var(--radius-card);
+    height: 100%;
+    inset: 0;
+    margin: 0 auto;
+    max-width: 700px;
+    object-fit: cover;
+    position: absolute;
+    width: 100%;
+  }
+
+  .pals__content {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    padding: 20px 30px;
+    position: relative;
+    text-align: center;
+
+    :global(.pals__logo) {
+      display: block;
+      max-width: 463px;
+      width: 100%;
+    }
+  }
+
+  .pals__video {
+    border: 2px solid var(--poncho_white);
+    display: block;
+    margin: 20px auto;
+    max-width: 400px;
+    width: 100%;
+  }
+
+  .button :global(img) {
+    height: 40px;
+    margin-right: 5px;
+    width: 40px;
+  }
+
+  @include media("lg") {
+    .pals__content {
+      padding: 20px;
+    }
+  }
+
+  @include media("sm") {
+    .pals__content {
+      padding: 15px;
+    }
+  }
+</style>

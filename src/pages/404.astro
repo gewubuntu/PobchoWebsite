@@ -1,0 +1,22 @@
+---
+import { Image } from "astro:assets";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import ponchoHead from "../assets/img/poncho_head.png";
+---
+
+<BaseLayout title="Page not found | Poncho on Base" path="/404" noindex>
+  <section class="not-found">
+    <div class="section-inner text-align-center">
+      <Image src={ponchoHead} alt="" widths={[200, 400]} sizes="200px" />
+      <h1 class="h2">Page not found</h1>
+      <p>Poncho looked everywhere, but this page doesn’t exist.</p>
+      <a class="button button--blue" href="/">Back to Home</a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .not-found img {
+    max-width: 200px;
+  }
+</style>

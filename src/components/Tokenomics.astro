@@ -1,0 +1,139 @@
+---
+import { links, token } from "../data/site";
+
+// Pie chart as static SVG (replaces Chart.js). Slices start at 9 o'clock and run clockwise.
+const total = token.allocation.reduce((sum, slice) => sum + slice.value, 0);
+const r = 100;
+const point = (angle: number) => {
+  const rad = (angle - 90) * (Math.PI / 180);
+  return `${(r + r * Math.cos(rad)).toFixed(3)} ${(r + r * Math.sin(rad)).toFixed(3)}`;
+};
+let angle = 270;
+const slices = token.allocation.map((slice) => {
+  const sweep = (slice.value / total) * 360;
+  const d = `M ${r} ${r} L ${point(angle)} A ${r} ${r} 0 ${sweep > 180 ? 1 : 0} 1 ${point(angle + sweep)} Z`;
+  angle += sweep;
+  return { ...slice, d };
+});
+---
+
+<section class="tokenomics background--blue-dark" id="tokenomics" aria-labelledby="tokenomics-title">
+  <div class="container container--padded">
+    <div class="section-inner reveal">
+      <h2 class="text-align-center" id="tokenomics-title">Tokenomics</h2>
+      <p class="tokenomics__intro">
+        Poncho is light hearted, and only wants good things for the community. Being a part of this growing network is the
+        goal. Base is still super early as a chain and will be a major player in this bull run.
+      </p>
+      <div class="tokenomics__body">
+        <ul class="tokenomics__facts">
+          <li>Stealth Launched on {token.launchDate}</li>
+          <li>Max Token Supply: <span class="font--bold font--orange">{token.maxSupply.toLocaleString("en-US")}</span></li>
+          <li>Team 5% and LP 95%</li>
+          <li>
+            LP Locked on <a href={links.uncx} target="_blank" rel="noopener">UNCX</a> ({token.lpLockYears} Years)
+          </li>
+          <li>Renounced Contract</li>
+          <li>No Buy/Sell Taxes</li>
+        </ul>
+
+        <figure class="chart">
+          <figcaption>
+            <ul class="chart__legend">
+              {
+                slices.map((slice) => (
+                  <li>
+                    <span class="chart__swatch" style={`background:${slice.color}`} />
+                    {slice.label} ({slice.value}%)
+                  </li>
+                ))
+              }
+            </ul>
+          </figcaption>
+          <svg viewBox="0 0 200 200" role="img" aria-label={slices.map((s) => `${s.label} ${s.value}%`).join(", ")}>
+            {
+              slices.map((slice) => (
+                <path d={slice.d} fill={slice.color}>
+                  <title>{`${slice.label} allocation: ${slice.value}%`}</title>
+                </path>
+              ))
+            }
+          </svg>
+        </figure>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .tokenomics__intro {
+    margin: 0 auto 30px;
+    max-width: 1024px;
+    text-align: center;
+  }
+
+  .tokenomics__body {
+    align-items: center;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .tokenomics__facts,
+  .chart {
+    margin: 0 20px 20px;
+  }
+
+  .tokenomics__facts a {
+    color: var(--poncho_white);
+  }
+
+  .chart {
+    width: min(320px, 100%);
+
+    svg {
+      display: block;
+      width: 100%;
+    }
+
+    path {
+      transition: transform 150ms $ease;
+      transform-origin: 100px 100px;
+
+      &:hover {
+        transform: scale(1.02);
+      }
+    }
+  }
+
+  .chart__legend {
+    display: flex;
+    font-size: 0.75rem;
+    gap: 15px;
+    justify-content: center;
+    list-style: none;
+    margin: 0 0 10px;
+    padding: 0;
+
+    li {
+      align-items: center;
+      display: flex;
+      gap: 6px;
+    }
+  }
+
+  .chart__swatch {
+    border: 1px solid var(--poncho_white);
+    display: inline-block;
+    height: 12px;
+    width: 36px;
+  }
+
+  @include media("lg") {
+    .tokenomics__intro {
+      margin-bottom: 20px;
+    }
+  }
+</style>

@@ -1,0 +1,168 @@
+---
+import { Icon } from "astro-icon/components";
+import { uniswapUrl } from "../data/site";
+---
+
+<dialog class="modal" id="buy-dialog" aria-labelledby="buy-dialog-title" data-src={uniswapUrl}>
+  <div class="modal__content">
+    <button class="modal__close" type="button" aria-label="Close" data-close-dialog>
+      <Icon name="fa6-solid:xmark" class="icon" />
+    </button>
+    <div class="modal__inner">
+      <div class="modal__header">
+        <h2 class="h3" id="buy-dialog-title">Buy $PONCHO</h2>
+        <p class="font--small">
+          <strong>NOTE:</strong> If you experience issues buying,
+          <a href={uniswapUrl} target="_blank" rel="noopener">buy directly on Uniswap</a>.
+        </p>
+      </div>
+      <div class="modal__body">
+        <!-- The swap widget is only loaded once the dialog is opened. -->
+        <iframe title="Uniswap swap for $PONCHO" width="100%" height="720" allow="clipboard-write"></iframe>
+      </div>
+    </div>
+  </div>
+</dialog>
+
+<script>
+  const dialog = document.getElementById("buy-dialog") as HTMLDialogElement | null;
+  const PARAM = "modal";
+
+  function urlWith(value: string | null) {
+    const url = new URL(location.href);
+    if (value) url.searchParams.set(PARAM, value);
+    else url.searchParams.delete(PARAM);
+    return url.pathname + url.search + url.hash;
+  }
+
+  function open(pushHistory: boolean) {
+    if (!dialog || dialog.open) return;
+    const iframe = dialog.querySelector("iframe");
+    if (iframe && !iframe.src) iframe.src = dialog.dataset.src ?? "";
+    dialog.showModal();
+    document.body.classList.add("disable-scroll");
+    if (pushHistory) history.pushState({ buyDialog: true }, "", urlWith("buy"));
+  }
+
+  function close() {
+    if (!dialog?.open) return;
+    dialog.close();
+  }
+
+  function syncWithUrl() {
+    const modal = new URLSearchParams(location.search).get(PARAM);
+    if (modal === "memes" && location.pathname !== "/memes/") {
+      // The meme generator moved from a modal to its own page.
+      location.replace("/memes/");
+      return;
+    }
+    if (modal === "buy") open(false);
+    else close();
+  }
+
+  if (dialog) {
+    dialog.addEventListener("close", () => {
+      document.body.classList.remove("disable-scroll");
+      if (new URLSearchParams(location.search).get(PARAM) === "buy") {
+        if (history.state?.buyDialog) history.back();
+        else history.replaceState(null, "", urlWith(null));
+      }
+    });
+
+    // Close when clicking the backdrop.
+    dialog.addEventListener("click", (event) => {
+      if (event.target === dialog) close();
+    });
+
+    dialog.querySelector("[data-close-dialog]")?.addEventListener("click", close);
+
+    document.addEventListener("click", (event) => {
+      const trigger = (event.target as Element | null)?.closest?.("[data-open-buy]");
+      if (trigger) {
+        event.preventDefault();
+        open(true);
+      }
+    });
+
+    addEventListener("popstate", syncWithUrl);
+    syncWithUrl();
+  }
+</script>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .modal {
+    background: transparent;
+    border: 0;
+    color: var(--poncho_white);
+    max-height: 100dvh;
+    max-width: 100vw;
+    overflow: auto;
+    padding: 0;
+    width: 100%;
+
+    &::backdrop {
+      background: rgb(29 26 122 / 0.9);
+    }
+  }
+
+  .modal__content {
+    background: var(--poncho_blue_dark);
+    border-radius: var(--radius-card);
+    box-shadow: var(--glow-orange);
+    margin: 25px auto;
+    max-width: 1330px;
+    position: relative;
+    width: 95vw;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .modal[open] .modal__content {
+      animation: modal-in 500ms $ease;
+    }
+
+    @keyframes modal-in {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+    }
+  }
+
+  .modal__close {
+    color: var(--poncho_white);
+    font-size: 1.25rem;
+    padding: 15px 20px;
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
+
+  .modal__inner {
+    padding: 40px 30px 30px;
+  }
+
+  .modal__header {
+    text-align: center;
+  }
+
+  .modal__body {
+    padding-top: 20px;
+
+    iframe {
+      border: 0;
+      display: block;
+    }
+  }
+
+  @include media("lg") {
+    .modal__inner {
+      padding: 30px 20px 20px;
+    }
+
+    .modal__body {
+      padding-top: 10px;
+    }
+  }
+</style>

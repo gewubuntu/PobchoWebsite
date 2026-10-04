@@ -1,0 +1,392 @@
+@use "tools" as *;
+@use "@fontsource-variable/montserrat/wght.css";
+@use "@fontsource-variable/montserrat/wght-italic.css";
+
+/* ---------------------------------------------------------------------------
+   Settings
+--------------------------------------------------------------------------- */
+
+:root {
+  --poncho_blue: #1d1fff;
+  --poncho_blue_hover: #1d48ff;
+  --poncho_blue_dark: #1d1a7a;
+  --poncho_green: #14c85c;
+  --poncho_green_hover: #3ae07d;
+  --poncho_grey: #eff2f5;
+  --poncho_grey_dark: #545454;
+  --poncho_orange: #ff9900;
+  --poncho_orange_hover: #ffa51f;
+  --poncho_purple: #1d104c;
+  --poncho_red: #e6453f;
+  --poncho_red_hover: #f25d57;
+  --poncho_white: #fbffef;
+
+  --font-sans: "Montserrat Variable", "Montserrat", system-ui, sans-serif;
+  --radius-pill: 66px;
+  --radius-card: 25px;
+  --glow-blue: rgba(29, 31, 255, 0.7) 0 0 24px 0;
+  --glow-green: rgba(20, 200, 92, 0.7) 0 0 24px 0;
+  --glow-orange: rgba(255, 153, 0, 0.7) 0 0 24px 0;
+}
+
+@font-face {
+  font-family: pricedown;
+  font-display: swap;
+  src: url("/fonts/pricedown.woff2") format("woff2");
+}
+
+/* ---------------------------------------------------------------------------
+   Generic
+--------------------------------------------------------------------------- */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  font-feature-settings: "lnum";
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: 20px;
+  line-height: 1.5;
+  scroll-behavior: smooth;
+  scroll-padding-top: 100px;
+  text-rendering: optimizeLegibility;
+  -webkit-text-size-adjust: 100%;
+
+  @include media("xl") {
+    font-size: 18px;
+  }
+
+  @include media("lg") {
+    font-size: 17px;
+  }
+
+  @include media("sm") {
+    font-size: 16px;
+  }
+}
+
+body {
+  background: var(--poncho_blue_dark);
+  color: var(--poncho_white);
+  margin: 0;
+  overflow-x: hidden;
+  width: 100%;
+}
+
+body.disable-scroll {
+  overflow: hidden;
+}
+
+/* ---------------------------------------------------------------------------
+   Elements
+--------------------------------------------------------------------------- */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  color: var(--poncho_orange);
+  font-weight: 700;
+  letter-spacing: 0.0015rem;
+  line-height: 2rem;
+}
+
+h1,
+.h1 {
+  font-size: 2.6rem;
+  margin: 0;
+}
+
+h2,
+.h2 {
+  font-size: 2.4rem;
+  margin: 0 0 30px;
+}
+
+h3,
+.h3 {
+  font-size: 1.6rem;
+  margin: 0 0 15px;
+}
+
+h4,
+.h4 {
+  font-size: 1.2rem;
+  margin: 0 0 10px;
+}
+
+h5,
+.h5 {
+  font-size: 1rem;
+  margin: 0 0 10px;
+}
+
+p {
+  line-height: 1.65rem;
+  margin: 0 0 10px;
+
+  a {
+    color: var(--poncho_white);
+  }
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 5px;
+}
+
+ul {
+  line-height: 1.65rem;
+}
+
+img,
+video,
+svg {
+  height: auto;
+  max-width: 100%;
+}
+
+section {
+  position: relative;
+}
+
+:focus-visible {
+  outline: 3px solid var(--poncho_orange);
+  outline-offset: 3px;
+}
+
+input,
+select,
+button {
+  font: inherit;
+}
+
+select {
+  background: var(--poncho_blue);
+  border: 2px solid var(--poncho_white);
+  border-radius: 5px;
+  color: var(--poncho_white);
+  cursor: pointer;
+  margin: 0 0 20px;
+  padding: 10px;
+  width: 100%;
+}
+
+/* ---------------------------------------------------------------------------
+   Buttons
+--------------------------------------------------------------------------- */
+
+button {
+  background: none;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.button {
+  align-items: center;
+  background: var(--poncho_white);
+  border: none;
+  border-radius: 25px;
+  color: var(--poncho_white);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 1rem;
+  font-weight: 600;
+  gap: 8px;
+  justify-content: center;
+  line-height: normal;
+  margin: 5px 5px 5px 0;
+  padding: 10px 20px;
+  position: relative;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: background-color 150ms $ease;
+  white-space: nowrap;
+
+  &:last-child {
+    margin-right: 0;
+  }
+
+  &--blue,
+  &--green-inverse,
+  &--orange-inverse,
+  &--red-inverse {
+    background: var(--poncho_blue);
+    border: 2px solid var(--poncho_white);
+    color: var(--poncho_white);
+  }
+
+  &--blue:hover {
+    background: var(--poncho_blue_hover);
+  }
+
+  &--green-inverse:hover {
+    background: var(--poncho_green_hover);
+  }
+
+  &--orange-inverse:hover {
+    background: var(--poncho_orange_hover);
+  }
+
+  &--red-inverse:hover {
+    background: var(--poncho_red_hover);
+  }
+
+  &--transparent {
+    background: transparent;
+    color: var(--poncho_white);
+  }
+
+  @include media("lg") {
+    padding: 10px 15px;
+  }
+}
+
+@media (hover: none) {
+  .button--blue:hover {
+    background: var(--poncho_blue);
+  }
+}
+
+/* ---------------------------------------------------------------------------
+   Objects / utilities
+--------------------------------------------------------------------------- */
+
+.background {
+  &--blue {
+    background: var(--poncho_blue);
+  }
+
+  &--blue-dark {
+    background: var(--poncho_blue_dark);
+  }
+
+  &--orange {
+    background: var(--poncho_orange);
+  }
+}
+
+.font {
+  &--bold {
+    font-weight: 600;
+  }
+
+  &--green {
+    color: var(--poncho_green);
+  }
+
+  &--orange {
+    color: var(--poncho_orange);
+  }
+
+  &--red {
+    color: var(--poncho_red);
+  }
+
+  &--small {
+    font-size: 0.85rem;
+  }
+
+  &--white {
+    color: var(--poncho_white);
+  }
+}
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.text-align-center {
+  text-align: center;
+}
+
+.sr-only {
+  border: 0;
+  clip: rect(0 0 0 0);
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
+.icon {
+  display: inline-block;
+  flex-shrink: 0;
+  height: 1em;
+  vertical-align: -0.125em;
+  width: auto;
+}
+
+// Constrained, centred content column
+.container {
+  margin: 0 auto;
+  max-width: 1380px;
+  position: relative;
+
+  &--padded {
+    padding: 0 30px;
+
+    @include media("lg") {
+      padding: 0 20px;
+    }
+
+    @include media("sm") {
+      padding: 0 15px;
+    }
+  }
+}
+
+// Vertical rhythm for top-level sections
+.section-inner {
+  padding: 80px 50px;
+  position: relative;
+
+  @include media("lg") {
+    padding: 60px 30px;
+  }
+
+  @include media("sm") {
+    padding: 50px 15px;
+  }
+}
+
+// Fade sections in as they scroll into view (only when JS is available and motion is welcome)
+@media (prefers-reduced-motion: no-preference) {
+  .js .reveal {
+    opacity: 0;
+    transition: opacity 500ms $ease;
+
+    &.is-visible {
+      opacity: 1;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

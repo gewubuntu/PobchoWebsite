@@ -1,0 +1,19 @@
+// Breakpoints (max-width, desktop first – matches the original site)
+$breakpoints: (
+  "xxl": 1920px,
+  "xl": 1200px,
+  "lg": 1024px,
+  "md": 992px,
+  "sm": 768px,
+  "xs": 480px,
+  "xxs": 330px,
+);
+
+@mixin media($name) {
+  @media screen and (max-width: map-get($breakpoints, $name)) {
+    @content;
+  }
+}
+
+// Shared easing used for transitions across the site
+$ease: cubic-bezier(0.4, 0, 0.2, 1);

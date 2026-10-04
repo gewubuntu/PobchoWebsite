@@ -1,0 +1,88 @@
+---
+import { Picture } from "astro:assets";
+import { bearHunt } from "../data/site";
+import screenshot from "../assets/img/bear_hunt.png";
+---
+
+<section class="bear-hunt background--blue-dark" id="bear-hunt" aria-labelledby="bear-hunt-title">
+  <div class="container container--padded">
+    <div class="section-inner reveal">
+      <div class="bear-hunt__card">
+        <Picture
+          src={screenshot}
+          alt="Poncho Bear Hunt gameplay: the boss bear in a top hat in front of a barn"
+          widths={[400, 600, 900]}
+          sizes="(max-width: 1024px) 100vw, 600px"
+          formats={["avif"]}
+          fallbackFormat="webp"
+          loading="lazy"
+        />
+        <div class="bear-hunt__text">
+          <h2 class="h3" id="bear-hunt-title">Poncho Bear Hunt</h2>
+          <p>
+            The bears are FUDding $PONCHO. Shoot them to pump the chart, chain hits to stack leverage and survive the boss,
+            The Big Short. Whatever you do, don’t shoot the cat.
+          </p>
+          {
+            bearHunt.url ? (
+              <a class="button button--blue" href={bearHunt.url} target="_blank" rel="noopener">
+                Play Now
+              </a>
+            ) : (
+              <span class="button button--blue bear-hunt__soon" aria-disabled="true">
+                Coming Soon
+              </span>
+            )
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .bear-hunt__card {
+    align-items: center;
+    background: linear-gradient(90deg, var(--poncho_blue) 0%, var(--poncho_blue_dark) 40%);
+    border-radius: var(--radius-card);
+    display: flex;
+    gap: 30px;
+    padding: 30px;
+
+    :global(picture) {
+      flex: 0 1 600px;
+    }
+
+    :global(img) {
+      border: 2px solid var(--poncho_white);
+      border-radius: 5px;
+      display: block;
+      width: 100%;
+    }
+  }
+
+  .bear-hunt__text {
+    flex: 1;
+  }
+
+  .bear-hunt__soon {
+    cursor: default;
+    opacity: 0.75;
+  }
+
+  @include media("lg") {
+    .bear-hunt__card {
+      background: none;
+      flex-direction: column;
+      padding: 0;
+      text-align: center;
+
+      :global(picture) {
+        flex: none;
+        width: 100%;
+      }
+    }
+  }
+</style>

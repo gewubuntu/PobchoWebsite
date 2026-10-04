@@ -1,0 +1,146 @@
+---
+import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
+import Accordion from "./Accordion.astro";
+import { links, uniswapUrl } from "../data/site";
+import ponchoHead from "../assets/img/poncho_head.png";
+---
+
+<section class="faq" id="faq" aria-labelledby="faq-title">
+  <div class="container container--padded">
+    <div class="section-inner reveal">
+      <h2 class="text-align-center" id="faq-title">FAQ</h2>
+      <div class="faq__list" data-accordion-group>
+        <div class="faq__toggle">
+          <button class="button button--transparent font--small" type="button" data-accordions="open">
+            <Icon name="fa6-solid:angles-down" class="icon" /> Show All
+          </button>
+          <span aria-hidden="true">|</span>
+          <button class="button button--transparent font--small" type="button" data-accordions="close">
+            <Icon name="fa6-solid:angles-up" class="icon" /> Hide All
+          </button>
+        </div>
+
+        <Accordion title="What is Poncho?">
+          <h3 class="h4">The cutest cat on Base</h3>
+          <p>
+            Poncho is the <strong>cutest</strong> cat on Base with the strongest community. The friendly face that welcomes
+            all <a class="no-wrap" href={links.smartWallet} target="_blank" rel="noopener">Smart Wallet</a> users.
+          </p>
+          <div class="text-align-center">
+            <Image class="faq__poncho" src={ponchoHead} alt="Poncho" widths={[250, 500]} sizes="250px" loading="lazy" />
+          </div>
+        </Accordion>
+
+        <Accordion title="What is Base?">
+          <h3 class="h4">Base: Coinbase’s L2 Network</h3>
+          <p>
+            Base is an Ethereum Layer 2 (L2) chain by Coinbase built on OP Stack in collaboration with Optimism that offers a
+            safe, low-cost, developer-friendly way to build on-chain.
+          </p>
+          <ul>
+            <li>Ethereum L2</li>
+            <li>Big features, small fees</li>
+            <li>Open Source, powered by Optimism</li>
+            <li>Scaled by Coinbase</li>
+            <li class="font--bold font--orange">Poncho’s home</li>
+          </ul>
+          <a class="button button--blue" href={links.base} target="_blank" rel="noopener" aria-label="Learn more about Base">Learn More</a>
+        </Accordion>
+
+        <Accordion title="How to buy?">
+          <h3 class="h4">$PONCHO</h3>
+          <h4 class="h5">Uniswap</h4>
+          <p>Click below to purchase $PONCHO on Uniswap through our site.</p>
+          <p class="font--small">
+            <strong>NOTE:</strong> If you experience issues buying,
+            <a href={uniswapUrl} target="_blank" rel="noopener">buy directly on Uniswap</a>.
+          </p>
+          <button class="button button--blue" type="button" data-open-buy>Buy Now</button>
+
+          <h4 class="h5 faq__spaced">Coinbase Smart Wallet</h4>
+          <p>
+            Follow these simple steps for <a href={links.howToBuyDesktop} target="_blank" rel="noopener">Desktop</a> or
+            <a href={links.howToBuyMobile} target="_blank" rel="noopener">Mobile</a> to get the cutest cat on Base in your
+            Smart Wallet, in under 1 minute.
+          </p>
+
+          <h3 class="h4 faq__spaced">Poncho Pals</h3>
+          <p>
+            The Poncho Pals 1,000 piece NFT collection is available on
+            <a href={links.opensea} target="_blank" rel="noopener">OpenSea</a>.
+          </p>
+          <a class="button button--blue" href={links.opensea} target="_blank" rel="noopener">Explore Collection</a>
+        </Accordion>
+
+        <Accordion title="How to join the community?">
+          <p>
+            Poncho invites you to come be a part of the <a href={links.opensea} target="_blank" rel="noopener">#PonchoPals</a>
+            community through <a href={links.twitter} target="_blank" rel="noopener">Twitter / X</a> and
+            <a href={links.telegram} target="_blank" rel="noopener">Telegram</a>.
+          </p>
+        </Accordion>
+
+        <Accordion title="Has Poncho ever been migrated?">
+          <p>
+            No — Poncho has never been migrated to another chain. There is no plan to migrate Poncho. Poncho’s home is Base.
+            Beware of scams claiming otherwise.
+          </p>
+        </Accordion>
+
+        <Accordion title="How to avoid scams?">
+          <p>
+            Do not click on any links without verifying they are official first. To verify, please check our
+            <a href="/">Official Website</a>, <a href={links.twitter} target="_blank" rel="noopener">Twitter / X</a> and
+            <a href={links.telegram} target="_blank" rel="noopener">Telegram</a>.
+          </p>
+          <p>We will never:</p>
+          <ul>
+            <li>Request your wallet’s private keys or passphrase</li>
+            <li>Request your personal information</li>
+            <li>Send you a DM</li>
+          </ul>
+          <a class="button button--blue" href={links.scams} target="_blank" rel="noopener" aria-label="Learn more about crypto scams">Learn More</a>
+        </Accordion>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-accordion-group]").forEach((group) => {
+    group.querySelectorAll<HTMLButtonElement>("[data-accordions]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const open = button.dataset.accordions === "open";
+        group.querySelectorAll("details").forEach((details) => (details.open = open));
+      });
+    });
+  });
+</script>
+
+<style lang="scss">
+  .faq__list {
+    margin: 20px auto;
+    max-width: 730px;
+  }
+
+  .faq__toggle {
+    align-items: center;
+    display: flex;
+    gap: 5px;
+    justify-content: center;
+
+    .button {
+      margin: 0;
+      text-transform: uppercase;
+    }
+  }
+
+  .faq__spaced {
+    margin-top: 20px;
+  }
+
+  :global(.faq__poncho) {
+    max-width: 250px;
+  }
+</style>

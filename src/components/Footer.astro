@@ -1,0 +1,60 @@
+---
+const year = new Date().getFullYear();
+---
+
+<footer class="footer">
+  <div class="container">
+    <div class="footer__bar">
+      <p class="font--small">
+        Disclaimer: <strong>$PONCHO</strong> is a meme coin with no intrinsic value or expectation of
+        <span class="no-wrap">financial return.</span>
+      </p>
+      <p class="font--small">
+        &copy; <span data-year>{year}</span> Poncho on Base. <span class="no-wrap">All rights reserved.</span>
+      </p>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // Keep the copyright year current between deploys.
+  const el = document.querySelector("[data-year]");
+  if (el) el.textContent = String(new Date().getFullYear());
+</script>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .footer {
+    position: relative;
+  }
+
+  .footer__bar {
+    background: var(--poncho_orange);
+    border: 2px solid var(--poncho_white);
+    border-radius: var(--radius-pill);
+    // Dark blue keeps the small print readable on orange (WCAG AA).
+    color: var(--poncho_blue_dark);
+    margin: 30px;
+    padding: 30px;
+    text-align: center;
+
+    p {
+      margin: 0;
+    }
+  }
+
+  @include media("lg") {
+    .footer__bar {
+      margin: 20px;
+      padding: 20px;
+    }
+  }
+
+  @include media("sm") {
+    .footer__bar {
+      margin: 15px;
+      padding: 15px 20px;
+    }
+  }
+</style>

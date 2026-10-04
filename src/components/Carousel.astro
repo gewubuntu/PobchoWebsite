@@ -1,0 +1,112 @@
+---
+import { Icon } from "astro-icon/components";
+
+interface Props {
+  label: string;
+  /** Snap slides to the centre (roadmap) instead of the start. */
+  center?: boolean;
+  class?: string;
+}
+
+const { label, center = false, class: className } = Astro.props;
+---
+
+<div class:list={["carousel", className, { "carousel--center": center }]} data-carousel>
+  <button class="carousel__nav" type="button" aria-label="Previous" data-dir="-1">
+    <Icon name="fa6-solid:chevron-left" class="icon" />
+  </button>
+  <div class="carousel__track" role="region" aria-label={label} tabindex="0">
+    <slot />
+  </div>
+  <button class="carousel__nav" type="button" aria-label="Next" data-dir="1">
+    <Icon name="fa6-solid:chevron-right" class="icon" />
+  </button>
+</div>
+
+<script>
+  import { initCarousels } from "../scripts/carousel";
+  initCarousels();
+</script>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .carousel {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .carousel__track {
+    display: flex;
+    flex: 1;
+    min-width: 0;
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    position: relative;
+    scroll-behavior: smooth;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+
+    &::-webkit-scrollbar {
+      display: none;
+    }
+
+    > :global(*) {
+      flex: 0 0 auto;
+      scroll-snap-align: start;
+    }
+
+    &:focus-visible {
+      outline-offset: -3px;
+    }
+  }
+
+  .carousel--center .carousel__track > :global(*) {
+    scroll-snap-align: center;
+  }
+
+  .carousel__nav {
+    color: var(--poncho_white);
+    flex-shrink: 0;
+    font-size: 2rem;
+    line-height: 1;
+    padding: 10px 20px;
+    transition: opacity 150ms $ease;
+
+    &:first-child {
+      margin-right: 10px;
+    }
+
+    &:last-child {
+      margin-left: 10px;
+    }
+
+    &:disabled {
+      cursor: default;
+      opacity: 0.5;
+    }
+  }
+
+  @include media("lg") {
+    .carousel__nav {
+      font-size: 1.5rem;
+      padding: 10px 15px;
+    }
+  }
+
+  @include media("xs") {
+    .carousel__nav {
+      font-size: 1.25rem;
+      padding: 10px;
+
+      &:first-child {
+        margin-right: 0;
+      }
+
+      &:last-child {
+        margin-left: 0;
+      }
+    }
+  }
+</style>

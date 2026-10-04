@@ -1,0 +1,102 @@
+---
+import { Icon } from "astro-icon/components";
+import Carousel from "./Carousel.astro";
+import { roadmap } from "../data/site";
+---
+
+<section class="roadmap" id="roadmap" aria-labelledby="roadmap-title">
+  <div class="section-inner roadmap__inner reveal">
+    <div class="container">
+      <h2 class="text-align-center" id="roadmap-title">Roadmap</h2>
+      <Carousel label="Roadmap phases" center>
+        {
+          roadmap.map((phase) => (
+            <article class:list={["phase", `phase--${phase.status}`]}>
+              <h3>{phase.title}</h3>
+              <ul>
+                {phase.items.map((item) => (
+                  <li>
+                    <Icon
+                      name={item.done ? "fa6-regular:circle-check" : "fa6-regular:circle"}
+                      class:list={["icon", item.done ? "font--green" : "font--orange"]}
+                      aria-hidden="true"
+                    />
+                    <span>
+                      {item.label}
+                      <span class="sr-only">{item.done ? "(done)" : "(in progress)"}</span>
+                    </span>
+                  </li>
+                ))}
+                <li class:list={["phase__status", phase.status === "completed" ? "font--green" : "font--orange"]}>
+                  <Icon name={phase.status === "completed" ? "fa6-regular:circle-check" : "fa6-regular:circle"} class="icon" aria-hidden="true" />
+                  {phase.status === "completed" ? "COMPLETED" : "IN PROGRESS"}
+                </li>
+              </ul>
+            </article>
+          ))
+        }
+      </Carousel>
+    </div>
+  </div>
+</section>
+
+<style lang="scss">
+  @use "../styles/tools" as *;
+
+  .roadmap__inner {
+    padding-bottom: 0;
+  }
+
+  .phase {
+    background: var(--poncho_blue_dark);
+    border-radius: var(--radius-card);
+    margin: 30px;
+    padding: 30px;
+
+    &--completed {
+      box-shadow: var(--glow-green);
+    }
+
+    &--progress {
+      box-shadow: var(--glow-orange);
+    }
+
+    h3 {
+      text-align: center;
+    }
+
+    ul {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    li {
+      align-items: center;
+      display: flex;
+      padding: 10px;
+
+      :global(.icon) {
+        font-size: 1.5rem;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .phase__status {
+    font-weight: 600;
+  }
+
+  @include media("lg") {
+    .phase {
+      margin: 20px;
+    }
+  }
+
+  @include media("xs") {
+    .phase {
+      margin: 30px 15px;
+      width: 100%;
+    }
+  }
+</style>
