@@ -95,7 +95,12 @@ function setup(root: HTMLElement, canvasEl: HTMLCanvasElement) {
     toastTimer = window.setTimeout(() => (toast.hidden = true), 5000);
   }
 
-  const clearSaved = () => canvasWrap.querySelector(".generator__saved")?.remove();
+  const clearSaved = () => {
+    const saved = canvasWrap.querySelector<HTMLImageElement>(".generator__saved");
+    if (!saved) return;
+    URL.revokeObjectURL(saved.src);
+    saved.remove();
+  };
   const center = () => ({ left: canvas.getWidth() / 2, top: canvas.getHeight() / 2, originX: "center", originY: "center" }) as const;
 
   function addObject(object: FabricObject, preview?: string) {

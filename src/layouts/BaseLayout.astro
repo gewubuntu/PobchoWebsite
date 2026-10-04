@@ -6,6 +6,7 @@ import Footer from "../components/Footer.astro";
 import BackgroundImage from "../components/BackgroundImage.astro";
 import BuyDialog from "../components/BuyDialog.astro";
 import FloatingActions from "../components/FloatingActions.astro";
+import ConsentBanner from "../components/ConsentBanner.astro";
 
 interface Props {
   title?: string;
@@ -95,20 +96,6 @@ const jsonLd = {
     <script is:inline>document.documentElement.classList.add("js");</script>
     <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
-    <!-- Google Analytics (loaded after the page is interactive) -->
-    <script is:inline define:vars={{ id: site.analyticsId }}>
-      window.dataLayer = window.dataLayer || [];
-      function gtag() { dataLayer.push(arguments); }
-      gtag("js", new Date());
-      gtag("config", id);
-      addEventListener("load", () => {
-        const s = document.createElement("script");
-        s.async = true;
-        s.src = "https://www.googletagmanager.com/gtag/js?id=" + id;
-        document.head.appendChild(s);
-      }, { once: true });
-    </script>
-
     <slot name="head" />
   </head>
   <body>
@@ -121,6 +108,7 @@ const jsonLd = {
     <Footer />
     <FloatingActions showMemes={memesShortcut} />
     <BuyDialog />
+    <ConsentBanner />
     <slot name="after" />
   </body>
 </html>

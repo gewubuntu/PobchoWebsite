@@ -12,20 +12,28 @@ document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => 
   const idle = button.dataset.tooltip ?? "";
   let timer: number | undefined;
 
+  const feedback = (tooltip: string, state: "is-copied" | "is-failed", message: string) => {
+    button.dataset.tooltip = tooltip;
+    button.classList.remove("is-copied", "is-failed");
+    button.classList.add(state);
+    if (status) status.textContent = message;
+    clearTimeout(timer);
+    timer = window.setTimeout(() => {
+      button.dataset.tooltip = idle;
+      button.classList.remove(state);
+      if (status) status.textContent = "";
+    }, state === "is-copied" ? 2000 : 4000);
+  };
+
   button.addEventListener("click", async () => {
     try {
       await navigator.clipboard.writeText(button.dataset.copy ?? "");
-      button.dataset.tooltip = "Copied!";
-      button.classList.add("is-copied");
-      if (status) status.textContent = "Address copied to clipboard";
-      clearTimeout(timer);
-      timer = window.setTimeout(() => {
-        button.dataset.tooltip = idle;
-        button.classList.remove("is-copied");
-        if (status) status.textContent = "";
-      }, 2000);
+      feedback("Copied!", "is-copied", "Address copied to clipboard");
     } catch {
-      // Clipboard can be unavailable (e.g. insecure context); the address stays visible for manual copying.
+      // Clipboard can be unavailable (insecure context, denied permission): select the address for manual copying.
+      const address = button.querySelector("[data-address]");
+      if (address) getSelection()?.selectAllChildren(address);
+      feedback("Copy failed – copy manually", "is-failed", "Copying failed. The address is selected, copy it manually.");
     }
   });
 });
@@ -97,17 +105,19 @@ type Pair = {
 };
 
 const API = "https://api.dexscreener.com/latest/dex";
+// Give up on a slow endpoint so the fallback (or the next refresh) still gets a chance.
+const TIMEOUT = 8000;
 
 async function fetchPair(): Promise<Pair | undefined> {
   try {
-    const res = await fetch(`${API}/pairs/base/${token.pairAddress}`, { cache: "no-store" });
+    const res = await fetch(`${API}/pairs/base/${token.pairAddress}`, { cache: "no-store", signal: AbortSignal.timeout(TIMEOUT) });
     const data = await res.json();
     if (data?.pair?.priceUsd) return data.pair as Pair;
   } catch {
     /* fall through to the token endpoint */
   }
   try {
-    const res = await fetch(`${API}/tokens/${token.address}`, { cache: "no-store" });
+    const res = await fetch(`${API}/tokens/${token.address}`, { cache: "no-store", signal: AbortSignal.timeout(TIMEOUT) });
     const data = await res.json();
     return (data?.pairs as Pair[] | undefined)?.find(
       (pair) =>

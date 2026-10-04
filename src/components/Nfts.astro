@@ -37,7 +37,7 @@ const posterImage = await getImage({ src: poster, format: "webp", width: 600 });
             fallbackFormat="webp"
             loading="lazy"
           />
-          <video class="pals__video" autoplay loop muted playsinline preload="none" poster={posterImage.src} width="400" height="400" aria-label="Poncho Pals collection preview">
+          <video class="pals__video" loop muted playsinline preload="none" poster={posterImage.src} width="400" height="400" aria-label="Poncho Pals collection preview">
             <source src="/video/poncho-pals.webm" type="video/webm" />
             <source src="/video/poncho-pals.mp4" type="video/mp4" />
           </video>
@@ -52,12 +52,20 @@ const posterImage = await getImage({ src: poster, format: "webp", width: 600 });
 </section>
 
 <script>
-  // Respect reduced-motion preferences for the looping preview.
-  if (matchMedia("(prefers-reduced-motion: reduce)").matches) {
-    document.querySelectorAll<HTMLVideoElement>(".pals__video").forEach((video) => {
-      video.removeAttribute("autoplay");
-      video.pause();
-    });
+  // Only download and play the looping preview while it is on screen (and never with reduced motion).
+  const videos = document.querySelectorAll<HTMLVideoElement>(".pals__video");
+  if (!matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          const video = entry.target as HTMLVideoElement;
+          if (entry.isIntersecting) video.play().catch(() => undefined);
+          else video.pause();
+        }
+      },
+      { rootMargin: "200px" },
+    );
+    videos.forEach((video) => observer.observe(video));
   }
 </script>
 

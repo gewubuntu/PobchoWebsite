@@ -18,6 +18,44 @@ test.beforeEach(async ({ page }) => {
     }),
   );
   await page.route(/googletagmanager|google-analytics/, (route) => route.abort());
+  // Consent is covered by its own tests; elsewhere start with a stored choice so the banner stays out of the way.
+  if (!test.info().title.startsWith("consent")) {
+    await page.addInitScript(() => localStorage.setItem("poncho-consent-v1", "denied"));
+  }
+});
+
+test.describe("cookie consent", () => {
+  test("consent: analytics only loads after accepting", async ({ page }) => {
+    const gaRequests: string[] = [];
+    page.on("request", (req) => req.url().includes("googletagmanager") && gaRequests.push(req.url()));
+
+    await page.goto("/");
+    const banner = page.locator("[data-consent]");
+    await expect(banner).toBeVisible();
+    await page.waitForTimeout(500);
+    expect(gaRequests).toEqual([]);
+
+    await banner.getByRole("button", { name: "Accept" }).click();
+    await expect(banner).toBeHidden();
+    await expect.poll(() => gaRequests.length).toBeGreaterThan(0);
+
+    await page.reload();
+    await expect(banner).toBeHidden();
+  });
+
+  test("consent: declining keeps analytics off and can be changed later", async ({ page }) => {
+    const gaRequests: string[] = [];
+    page.on("request", (req) => req.url().includes("googletagmanager") && gaRequests.push(req.url()));
+
+    await page.goto("/");
+    await page.locator("[data-consent]").getByRole("button", { name: "Decline" }).click();
+    await page.reload();
+    await expect(page.locator("[data-consent]")).toBeHidden();
+    expect(gaRequests).toEqual([]);
+
+    await page.getByRole("button", { name: "Cookie settings" }).click();
+    await expect(page.locator("[data-consent]")).toBeVisible();
+  });
 });
 
 test.describe("landing page", () => {

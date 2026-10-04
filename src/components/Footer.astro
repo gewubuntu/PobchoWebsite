@@ -12,6 +12,9 @@ const year = new Date().getFullYear();
       <p class="font--small">
         &copy; <span data-year>{year}</span> Poncho on Base. <span class="no-wrap">All rights reserved.</span>
       </p>
+      <p class="font--small">
+        <button class="footer__link" type="button" data-consent-open>Cookie settings</button>
+      </p>
     </div>
   </div>
 </footer>
@@ -42,6 +45,13 @@ const year = new Date().getFullYear();
     p {
       margin: 0;
     }
+  }
+
+  .footer__link {
+    color: inherit;
+    font-size: inherit;
+    text-decoration: underline;
+    text-underline-offset: 5px;
   }
 
   @include media("lg") {

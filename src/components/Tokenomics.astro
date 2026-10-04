@@ -53,7 +53,7 @@ const slices = token.allocation.map((slice) => {
           <svg viewBox="0 0 200 200" role="img" aria-label={slices.map((s) => `${s.label} ${s.value}%`).join(", ")}>
             {
               slices.map((slice) => (
-                <path d={slice.d} fill={slice.color}>
+                <path d={slice.d} style={`fill:${slice.color}`}>
                   <title>{`${slice.label} allocation: ${slice.value}%`}</title>
                 </path>
               ))
