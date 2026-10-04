@@ -30,6 +30,19 @@ const test = base.extend<Options>({
   },
 });
 
+test.describe("typography", () => {
+  for (const path of ["/", "/memes/", "/404"]) {
+    test(`no stray whitespace before punctuation on ${path}`, async ({ page }) => {
+      // Guards against formatter line breaks that turn "Uniswap</a>." into "Uniswap ." (Astro keeps the whitespace).
+      await page.goto(path);
+      await page.evaluate(() => document.querySelectorAll("details").forEach((d) => (d.open = true)));
+      const text = await page.locator("body").innerText();
+      const offenders = text.match(/\S+ [.,;:!?](?=\s|$)/g) ?? [];
+      expect(offenders).toEqual([]);
+    });
+  }
+});
+
 test.describe("cookie consent", () => {
   test.use({ consent: null });
 
@@ -71,10 +84,14 @@ test.describe("cookie consent", () => {
     await banner.getByRole("button", { name: "Accept" }).click();
     await page.getByRole("button", { name: "Cookie settings" }).click();
     await banner.getByRole("button", { name: "Decline" }).click();
-    expect(await page.evaluate(() => (window as unknown as Record<string, unknown>)["ga-disable-G-LBV1YCZ3ME"])).toBe(true);
+    expect(await page.evaluate(() => (window as unknown as Record<string, unknown>)["ga-disable-G-LBV1YCZ3ME"])).toBe(
+      true,
+    );
     await page.getByRole("button", { name: "Cookie settings" }).click();
     await banner.getByRole("button", { name: "Accept" }).click();
-    expect(await page.evaluate(() => (window as unknown as Record<string, unknown>)["ga-disable-G-LBV1YCZ3ME"])).toBe(false);
+    expect(await page.evaluate(() => (window as unknown as Record<string, unknown>)["ga-disable-G-LBV1YCZ3ME"])).toBe(
+      false,
+    );
   });
 });
 
@@ -108,11 +125,15 @@ test.describe("landing page", () => {
     await page.goto("/");
     await page.locator("[data-copy]").click();
     await expect(page.locator("[data-copy]")).toHaveAttribute("data-tooltip", "Copied!");
-    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe("0xC2fE011C3885277c7F0e7ffd45Ff90cADc8ECD12");
+    expect(await page.evaluate(() => navigator.clipboard.readText())).toBe(
+      "0xC2fE011C3885277c7F0e7ffd45Ff90cADc8ECD12",
+    );
   });
 
   test("opens and closes the buy dialog via button and URL", async ({ page }) => {
-    await page.route("https://app.uniswap.org/**", (route) => route.fulfill({ body: "<html></html>", contentType: "text/html" }));
+    await page.route("https://app.uniswap.org/**", (route) =>
+      route.fulfill({ body: "<html></html>", contentType: "text/html" }),
+    );
     await page.goto("/");
     await page.getByRole("button", { name: "Buy $PONCHO" }).click();
     const dialog = page.locator("#buy-dialog");
@@ -188,6 +209,17 @@ test.describe("landing page", () => {
 });
 
 test.describe("meme generator", () => {
+  test("emoji picker loads its data from our own domain", async ({ page }) => {
+    const external: string[] = [];
+    page.on("request", (req) => req.url().includes("jsdelivr") && external.push(req.url()));
+    await page.goto("/memes/");
+    const data = page.waitForResponse((res) => /\/_astro\/data\.[^/]+\.json$/.test(new URL(res.url()).pathname));
+    await page.getByRole("button", { name: "Add emoji" }).click();
+    expect((await data).ok()).toBe(true);
+    await expect(page.locator("emoji-picker")).toBeVisible();
+    expect(external).toEqual([]);
+  });
+
   test("loads a template and manages layers", async ({ page }) => {
     const errors: string[] = [];
     page.on("pageerror", (error) => errors.push(error.message));

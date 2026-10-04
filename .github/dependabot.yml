@@ -1,0 +1,27 @@
+version: 2
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    target-branch: dev
+    open-pull-requests-limit: 5
+    groups:
+      # One PR for routine updates, separate PRs for major versions.
+      minor-and-patch:
+        update-types: [minor, patch]
+    ignore:
+      # Fabric 7 changes default object origins; needs a manual migration of the meme templates.
+      - dependency-name: fabric
+        update-types: [version-update:semver-major]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    target-branch: dev
+    groups:
+      actions:
+        patterns: ["*"]

@@ -19,12 +19,20 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Formatting
+        run: npm run format:check
+      - name: Security audit (production dependencies)
+        run: npm run audit
+      - name: Unit tests
+        run: npm run test:unit
       - name: Type check and build
         run: npm run build
       - name: Install Playwright browser
         run: npx playwright install --with-deps chromium
       - name: End-to-end tests
-        run: npm test
+        run: npm run test:e2e
       - uses: actions/upload-artifact@v4
         if: failure()
         with:

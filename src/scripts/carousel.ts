@@ -20,9 +20,7 @@ export function initCarousels(root: ParentNode = document) {
       const { left: trackLeft } = track.getBoundingClientRect();
       const offsets = slides().map((slide) => slide.getBoundingClientRect().left - trackLeft);
       const target =
-        dir > 0
-          ? offsets.find((offset) => offset > 1)
-          : [...offsets].reverse().find((offset) => offset < -1);
+        dir > 0 ? offsets.find((offset) => offset > 1) : [...offsets].reverse().find((offset) => offset < -1);
       if (target !== undefined) track.scrollBy({ left: target });
     };
 

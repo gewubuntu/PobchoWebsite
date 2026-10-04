@@ -9,7 +9,13 @@
     "build": "astro check && astro build",
     "preview": "astro preview",
     "check": "astro check",
-    "test": "playwright test"
+    "test": "vitest run && playwright test",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test:unit": "vitest run",
+    "test:e2e": "playwright test",
+    "audit": "audit-ci --config audit-ci.jsonc"
   },
   "engines": {
     "node": ">=22"
@@ -20,16 +26,25 @@
     "astro": "^7.3.5",
     "astro-icon": "^1.2.0",
     "emoji-picker-element": "^1.29.1",
+    "emoji-picker-element-data": "^1.8.0",
     "fabric": "^6.9.1",
     "sortablejs": "^1.15.7"
   },
   "devDependencies": {
     "@astrojs/check": "^0.9.10",
+    "@eslint/js": "^10.0.1",
     "@iconify-json/fa6-regular": "^1.2.4",
     "@iconify-json/fa6-solid": "^1.2.4",
     "@playwright/test": "^1.63.0",
     "@types/sortablejs": "^1.15.9",
+    "audit-ci": "^7.1.0",
+    "eslint": "^10.12.0",
+    "eslint-plugin-astro": "^1.7.0",
+    "globals": "^17.13.0",
+    "prettier": "^3.9.9",
     "sass": "^1.105.1",
-    "typescript": "^6.0.3"
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.71.0",
+    "vitest": "^5.0.3"
   }
 }

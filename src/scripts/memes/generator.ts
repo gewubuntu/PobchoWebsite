@@ -3,6 +3,8 @@
 import { Canvas, FabricImage, FabricObject, InteractiveFabricObject, Rect, Textbox } from "fabric";
 import Sortable from "sortablejs";
 import { defaultTemplate, templates, toTitle, type TextBox } from "../../data/memes";
+// Emoji data is bundled and served from our own domain instead of the picker's default CDN (no third-party request).
+import emojiDataUrl from "emoji-picker-element-data/en/emojibase/data.json?url";
 
 const TEMPLATE_DIR = "/memes/templates";
 const ASSET_DIR = "/memes/assets";
@@ -71,8 +73,9 @@ function setup(root: HTMLElement, canvasEl: HTMLCanvasElement) {
   /* ------------------------------------------------------------ helpers -- */
 
   const icon = (name: string) =>
-    (document.querySelector<HTMLTemplateElement>(`template[data-icon="${name}"]`)?.content.cloneNode(true) as DocumentFragment) ??
-    document.createDocumentFragment();
+    (document
+      .querySelector<HTMLTemplateElement>(`template[data-icon="${name}"]`)
+      ?.content.cloneNode(true) as DocumentFragment) ?? document.createDocumentFragment();
 
   const toast = document.querySelector<HTMLElement>("[data-toast]");
   const toastMessage = toast?.querySelector<HTMLElement>("[data-toast-message]");
@@ -101,7 +104,8 @@ function setup(root: HTMLElement, canvasEl: HTMLCanvasElement) {
     URL.revokeObjectURL(saved.src);
     saved.remove();
   };
-  const center = () => ({ left: canvas.getWidth() / 2, top: canvas.getHeight() / 2, originX: "center", originY: "center" }) as const;
+  const center = () =>
+    ({ left: canvas.getWidth() / 2, top: canvas.getHeight() / 2, originX: "center", originY: "center" }) as const;
 
   function addObject(object: FabricObject, preview?: string) {
     clearSaved();
@@ -144,7 +148,11 @@ function setup(root: HTMLElement, canvasEl: HTMLCanvasElement) {
     root.querySelectorAll<HTMLButtonElement>("[data-template]").forEach((button) => {
       button.setAttribute("aria-pressed", String(button.dataset.template === template.name));
     });
-    await loadBackground(`${TEMPLATE_DIR}/${template.name}.png`, `${TEMPLATE_DIR}/small/${template.name}.png`, template.text);
+    await loadBackground(
+      `${TEMPLATE_DIR}/${template.name}.png`,
+      `${TEMPLATE_DIR}/small/${template.name}.png`,
+      template.text,
+    );
   }
 
   async function addImage(src: string, half: boolean) {
@@ -331,9 +339,11 @@ function setup(root: HTMLElement, canvasEl: HTMLCanvasElement) {
     if (assetButton) return void addImage(assetButton.dataset.asset!, assetSize.value === "50");
   });
 
-  root.querySelector<HTMLInputElement>('[data-upload="image"]')?.addEventListener("change", (event) =>
-    readFile(event.currentTarget as HTMLInputElement, (url) => addImage(url, true)),
-  );
+  root
+    .querySelector<HTMLInputElement>('[data-upload="image"]')
+    ?.addEventListener("change", (event) =>
+      readFile(event.currentTarget as HTMLInputElement, (url) => addImage(url, true)),
+    );
 
   root.querySelector<HTMLInputElement>('[data-upload="template"]')?.addEventListener("change", (event) =>
     readFile(event.currentTarget as HTMLInputElement, (url) => {
@@ -354,7 +364,13 @@ function setup(root: HTMLElement, canvasEl: HTMLCanvasElement) {
         button.className = "gallery__item";
         button.dataset.asset = src;
         button.title = toTitle(file);
-        const img = Object.assign(document.createElement("img"), { src, alt: toTitle(file), loading: "lazy", width: 150, height: 150 });
+        const img = Object.assign(document.createElement("img"), {
+          src,
+          alt: toTitle(file),
+          loading: "lazy",
+          width: 150,
+          height: 150,
+        });
         button.append(img);
         return button;
       }),
@@ -377,6 +393,7 @@ function setup(root: HTMLElement, canvasEl: HTMLCanvasElement) {
     pickerLoaded = true;
     await import("emoji-picker-element");
     const picker = document.createElement("emoji-picker");
+    picker.setAttribute("data-source", emojiDataUrl);
     picker.addEventListener("emoji-click", (event) => {
       const unicode = event.detail.unicode;
       if (!unicode) return;
@@ -387,7 +404,12 @@ function setup(root: HTMLElement, canvasEl: HTMLCanvasElement) {
         renderLayers();
       } else {
         addObject(
-          new Textbox(unicode, { ...textStyle, ...center(), fontSize: canvas.getHeight() / 10, width: canvas.getWidth() / 1.5 }),
+          new Textbox(unicode, {
+            ...textStyle,
+            ...center(),
+            fontSize: canvas.getHeight() / 10,
+            width: canvas.getWidth() / 1.5,
+          }),
         );
       }
     });

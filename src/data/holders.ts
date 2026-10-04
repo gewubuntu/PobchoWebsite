@@ -74,6 +74,12 @@ let cached: Promise<Result> | undefined;
 export function getHolders() {
   cached ??= load().then((result) => {
     console.info(`[holders] ${result.value} (${result.source})`);
+    if (result.source === "fallback" && process.env.GITHUB_ACTIONS === "true") {
+      // Shows up as an annotation on the workflow run, so a stale count doesn't go unnoticed.
+      console.log(
+        "::warning title=Holder count not updated::No holder API answered; the site shows the stored fallback from src/data/site.ts.",
+      );
+    }
     return result;
   });
   return cached;

@@ -56,9 +56,19 @@ export const templates: { name: string; text: TextBox[] }[] = [
       { text: "Poncho\n$2", fontSize: 15, left: 1.25, top: 6, width: 6 },
     ],
   },
-  ...["Background", "BASE_Blue", "Beige", "Blackout", "Green", "Light_Blue", "OG", "Orange", "Pink", "Punk", "Purple"].map(
-    (name) => ({ name, text: centered }),
-  ),
+  ...[
+    "Background",
+    "BASE_Blue",
+    "Beige",
+    "Blackout",
+    "Green",
+    "Light_Blue",
+    "OG",
+    "Orange",
+    "Pink",
+    "Punk",
+    "Purple",
+  ].map((name) => ({ name, text: centered })),
 ];
 
 export const defaultTemplate = "With_Sign";
@@ -74,4 +84,7 @@ export const assetGroups = [
 
 /** "Sombrero_Black&Orange.png" → "Sombrero Black & Orange" */
 export const toTitle = (filename: string) =>
-  filename.replace(/\.[^.]+$/, "").replaceAll("_", " ").replaceAll("&", " & ");
+  filename
+    .replace(/\.[^.]+$/, "")
+    .replaceAll("_", " ")
+    .replaceAll("&", " & ");

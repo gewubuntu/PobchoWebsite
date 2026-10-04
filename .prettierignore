@@ -1,0 +1,12 @@
+dist/
+.astro/
+node_modules/
+package-lock.json
+public/
+test-results/
+playwright-report/
+
+# prettier-plugin-astro reflows inline elements (e.g. moves link text onto its own line), which changes rendered
+# whitespace because this project keeps HTML whitespace (compressHTML: false). Astro files are formatted by hand and
+# checked by ESLint; tests/site.spec.ts guards against stray whitespace before punctuation.
+*.astro

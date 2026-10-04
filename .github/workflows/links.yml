@@ -1,0 +1,39 @@
+name: Link check
+
+# Weekly check of all links on the built site. A failing run sends the usual GitHub Actions failure notification.
+on:
+  schedule:
+    - cron: "41 6 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  links:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+      - name: Check links
+        uses: lycheeverse/lychee-action@v2
+        with:
+          # Hosts that block automated requests (bot protection) are excluded; they would always report false failures.
+          args: >-
+            --no-progress
+            --root-dir "${{ github.workspace }}/dist"
+            --accept 200..=299,429
+            --exclude "^https://(x|twitter)\.com"
+            --exclude "^https://t\.me"
+            --exclude "^https://opensea\.io"
+            --exclude "^https://coinmarketcap\.com"
+            --exclude "^https://dexscreener\.com"
+            --exclude "^https://app\.uniswap\.org"
+            --exclude "^https://www\.googletagmanager\.com"
+            "dist/**/*.html"
+          fail: true

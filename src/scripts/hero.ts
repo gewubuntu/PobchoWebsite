@@ -18,11 +18,14 @@ document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => 
     button.classList.add(state);
     if (status) status.textContent = message;
     clearTimeout(timer);
-    timer = window.setTimeout(() => {
-      button.dataset.tooltip = idle;
-      button.classList.remove(state);
-      if (status) status.textContent = "";
-    }, state === "is-copied" ? 2000 : 4000);
+    timer = window.setTimeout(
+      () => {
+        button.dataset.tooltip = idle;
+        button.classList.remove(state);
+        if (status) status.textContent = "";
+      },
+      state === "is-copied" ? 2000 : 4000,
+    );
   };
 
   button.addEventListener("click", async () => {
@@ -33,7 +36,11 @@ document.querySelectorAll<HTMLButtonElement>("[data-copy]").forEach((button) => 
       // Clipboard can be unavailable (insecure context, denied permission): select the address for manual copying.
       const address = button.querySelector("[data-address]");
       if (address) getSelection()?.selectAllChildren(address);
-      feedback("Copy failed – copy manually", "is-failed", "Copying failed. The address is selected, copy it manually.");
+      feedback(
+        "Copy failed – copy manually",
+        "is-failed",
+        "Copying failed. The address is selected, copy it manually.",
+      );
     }
   });
 });
@@ -53,7 +60,14 @@ function animateText(el: HTMLElement, finalText: string, duration = 2500) {
   const frame = (now: number) => {
     const p = Math.min((now - start) / duration, 1);
     el.textContent = parts
-      .map((part, i) => (i % 2 ? String(Math.floor(Number(part) * easeSwing(p))).padStart(part.length > 1 && part.startsWith("0") ? part.length : 0, "0") : part))
+      .map((part, i) =>
+        i % 2
+          ? String(Math.floor(Number(part) * easeSwing(p))).padStart(
+              part.length > 1 && part.startsWith("0") ? part.length : 0,
+              "0",
+            )
+          : part,
+      )
       .join("");
     if (p < 1) requestAnimationFrame(frame);
     else el.textContent = finalText;
@@ -110,14 +124,20 @@ const TIMEOUT = 8000;
 
 async function fetchPair(): Promise<Pair | undefined> {
   try {
-    const res = await fetch(`${API}/pairs/base/${token.pairAddress}`, { cache: "no-store", signal: AbortSignal.timeout(TIMEOUT) });
+    const res = await fetch(`${API}/pairs/base/${token.pairAddress}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(TIMEOUT),
+    });
     const data = await res.json();
     if (data?.pair?.priceUsd) return data.pair as Pair;
   } catch {
     /* fall through to the token endpoint */
   }
   try {
-    const res = await fetch(`${API}/tokens/${token.address}`, { cache: "no-store", signal: AbortSignal.timeout(TIMEOUT) });
+    const res = await fetch(`${API}/tokens/${token.address}`, {
+      cache: "no-store",
+      signal: AbortSignal.timeout(TIMEOUT),
+    });
     const data = await res.json();
     return (data?.pairs as Pair[] | undefined)?.find(
       (pair) =>

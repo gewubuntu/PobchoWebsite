@@ -1,0 +1,14 @@
+{
+  "$schema": "https://github.com/IBM/audit-ci/raw/main/docs/schema.json",
+  // Fail CI on high/critical advisories in production dependencies.
+  "high": true,
+  "skip-dev": true,
+  "allowlist": [
+    // Fabric.js stored XSS via SVG export. The meme generator only exports PNG (canvas.toBlob), never SVG, so this is
+    // not reachable. Remove once the generator is migrated to Fabric 7.
+    "GHSA-hfvx-25r5-qc3w",
+    // tar is pulled in through Fabric's optional Node rendering stack (canvas → node-pre-gyp). It is not installed by
+    // `npm ci` here and never shipped to the browser.
+    "tar",
+  ],
+}
