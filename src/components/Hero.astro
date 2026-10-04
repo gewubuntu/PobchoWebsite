@@ -4,6 +4,7 @@ import { Icon } from "astro-icon/components";
 import Carousel from "./Carousel.astro";
 import { links, token } from "../data/site";
 import { formatCompact } from "../scripts/format";
+import { getHolders } from "../data/holders";
 
 import poncho from "../assets/img/poncho.png";
 import baseLogo from "../assets/img/base.png";
@@ -23,11 +24,13 @@ const socials = [
   { href: links.medium, label: "Medium", img: medium },
 ];
 
+const holders = await getHolders();
+
 type Stat = { label: string; value?: number; prefix?: string; suffix?: string; live?: string };
 
 const stats: Stat[] = [
   { label: "Max Total Supply", value: token.maxSupply },
-  { label: "Holders", value: token.holders.value, suffix: "+" },
+  { label: "Holders", value: holders.value, suffix: holders.source === "fallback" ? "+" : "" },
   { label: "Market Cap", prefix: "$", live: "marketCap" },
   { label: "Volume (24H)", prefix: "$", live: "volume" },
   { label: "Transactions (24H)", live: "transactions" },

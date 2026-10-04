@@ -1,17 +1,18 @@
 ---
 import { Image } from "astro:assets";
+import { Icon } from "astro-icon/components";
 import logo from "../assets/img/logo.png";
 import { nav } from "../data/site";
 ---
 
-<header class="header">
+<header class="header" data-header>
   <div class="container">
     <div class="header__bar">
       <div class="header__left">
         <a class="header__logo" href="/" aria-label="Poncho on Base – Home">
           <Image src={logo} alt="Poncho on Base" widths={[150, 300]} sizes="(max-width: 768px) 75px, (max-width: 1024px) 125px, 150px" loading="eager" />
         </a>
-        <nav aria-label="Main">
+        <nav aria-label="Main" id="main-nav">
           <ul>
             {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
           </ul>
@@ -20,10 +21,48 @@ import { nav } from "../data/site";
       <div class="header__actions">
         <a class="button button--blue" href="/memes/">Memes</a>
         <button class="button button--blue" type="button" data-open-buy>Buy <span class="xs-hide">Now</span></button>
+        <button class="button button--blue header__toggle" type="button" aria-controls="main-nav" aria-expanded="false" aria-label="Open menu" data-nav-toggle>
+          <Icon name="fa6-solid:bars" class="icon header__icon-open" />
+          <Icon name="fa6-solid:xmark" class="icon header__icon-close" />
+        </button>
       </div>
     </div>
   </div>
 </header>
+
+<script>
+  const header = document.querySelector<HTMLElement>("[data-header]");
+  const toggle = header?.querySelector<HTMLButtonElement>("[data-nav-toggle]");
+  const nav = header?.querySelector<HTMLElement>("#main-nav");
+
+  if (header && toggle && nav) {
+    const setOpen = (open: boolean) => {
+      header.classList.toggle("is-open", open);
+      toggle.setAttribute("aria-expanded", String(open));
+      toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    };
+    const isOpen = () => header.classList.contains("is-open");
+
+    toggle.addEventListener("click", () => {
+      setOpen(!isOpen());
+      if (isOpen()) nav.querySelector("a")?.focus();
+    });
+    // Close after choosing a section, on Escape, on outside clicks and when switching to the desktop layout.
+    nav.addEventListener("click", (event) => {
+      if ((event.target as Element).closest("a")) setOpen(false);
+    });
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape" && isOpen()) {
+        setOpen(false);
+        toggle.focus();
+      }
+    });
+    document.addEventListener("click", (event) => {
+      if (isOpen() && !header.contains(event.target as Node)) setOpen(false);
+    });
+    matchMedia("(min-width: 1025px)").addEventListener("change", (event) => event.matches && setOpen(false));
+  }
+</script>
 
 <style lang="scss">
   @use "../styles/tools" as *;
@@ -82,7 +121,28 @@ import { nav } from "../data/site";
   }
 
   .header__actions {
+    align-items: center;
     display: flex;
+  }
+
+  .header__toggle {
+    display: none;
+    padding-left: 14px;
+    padding-right: 14px;
+
+    .header__icon-close {
+      display: none;
+    }
+  }
+
+  .header.is-open .header__toggle {
+    .header__icon-open {
+      display: none;
+    }
+
+    .header__icon-close {
+      display: inline-block;
+    }
   }
 
   @include media("lg") {
@@ -94,8 +154,44 @@ import { nav } from "../data/site";
       width: 125px;
     }
 
+    .header__toggle {
+      display: inline-flex;
+    }
+
+    // Mobile: the nav becomes a dropdown panel below the header bar.
     nav {
+      background: var(--poncho_orange);
+      border: 2px solid var(--poncho_white);
+      border-radius: var(--radius-card);
+      box-shadow: var(--glow-orange);
       display: none;
+      left: 20px;
+      margin: 0;
+      padding: 10px;
+      position: absolute;
+      right: 20px;
+      top: calc(100% - 10px);
+
+      ul {
+        flex-direction: column;
+      }
+
+      a {
+        border-radius: 15px;
+        display: block;
+        font-size: 1.1rem;
+        padding: 12px 15px;
+
+        &:hover,
+        &:focus-visible {
+          background: rgb(29 26 122 / 0.12);
+          text-decoration: none;
+        }
+      }
+    }
+
+    .header.is-open nav {
+      display: block;
     }
   }
 
@@ -107,6 +203,11 @@ import { nav } from "../data/site";
 
     .header__logo img {
       width: 75px;
+    }
+
+    nav {
+      left: 15px;
+      right: 15px;
     }
   }
 

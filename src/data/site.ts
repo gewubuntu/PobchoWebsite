@@ -23,7 +23,7 @@ export const token = {
     { label: "LP", value: 95, color: "var(--poncho_blue)" },
   ],
   lpLockYears: 5,
-  // Holder count is not available from DexScreener; update manually.
+  // Fallback only – the live holder count is fetched at build time (see src/data/holders.ts).
   holders: { value: 92_985, updated: "2025-02-16" },
 } as const;
 

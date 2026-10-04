@@ -122,6 +122,26 @@ test.describe("landing page", () => {
     expect(await details.evaluateAll((els) => els.every((el) => !(el as HTMLDetailsElement).open))).toBe(true);
   });
 
+  test("mobile menu opens, navigates and closes", async ({ page }) => {
+    await page.setViewportSize({ width: 390, height: 844 });
+    await page.goto("/");
+    const toggle = page.getByRole("button", { name: "Open menu" });
+    const nav = page.getByRole("navigation", { name: "Main" });
+    await expect(nav).toBeHidden();
+
+    await toggle.click();
+    await expect(nav).toBeVisible();
+    await expect(page.getByRole("button", { name: "Close menu" })).toHaveAttribute("aria-expanded", "true");
+
+    await nav.getByRole("link", { name: "FAQ" }).click();
+    await expect(nav).toBeHidden();
+    await expect(page).toHaveURL(/#faq$/);
+
+    await page.getByRole("button", { name: "Open menu" }).click();
+    await page.keyboard.press("Escape");
+    await expect(nav).toBeHidden();
+  });
+
   test("carousel buttons scroll the roadmap", async ({ page }) => {
     await page.setViewportSize({ width: 400, height: 900 });
     await page.goto("/#roadmap");

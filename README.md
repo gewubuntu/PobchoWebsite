@@ -42,8 +42,7 @@ tests/                  Playwright tests
 
 ## Common edits
 
-- **Links, contract address, holders count, roadmap:** `src/data/site.ts`
-  The holder count is not available from DEX Screener, so update `token.holders` by hand.
+- **Links, contract address, roadmap:** `src/data/site.ts`
 - **Poncho Bear Hunt:** set `bearHunt.url` in `src/data/site.ts` once the game is deployed. Until then the section shows "Coming Soon".
 - **New meme template:** add `<Name>.png` to `public/memes/templates/`, a 300×300 thumbnail to `public/memes/templates/small/`, and an entry in `src/data/memes.ts`.
 
@@ -52,10 +51,17 @@ tests/                  Playwright tests
 Price, market cap, 24h volume and 24h transactions are fetched in the browser from the
 [DEX Screener API](https://docs.dexscreener.com/api/reference) and refreshed every minute while the tab is visible.
 
+The holder count is fetched at build time (`src/data/holders.ts`): from Basescan (Etherscan V2 API) when the
+`BASESCAN_API_KEY` environment variable is set, otherwise from the free Blockscout API for Base. If both fail, the
+build uses the fallback value `token.holders` in `src/data/site.ts` and shows it with a "+". Note that Etherscan's
+holder-count endpoint requires an API PRO plan; without it the build falls back to Blockscout automatically.
+
 ## Deployment
 
 - `dev` – integration branch; every push runs CI (type check, build, tests).
-- `main` – production. Pushes deploy to GitHub Pages via `.github/workflows/deploy.yml`.
+- `main` – production. Pushes deploy to GitHub Pages via `.github/workflows/deploy.yml`. The site is also rebuilt
+  daily at 04:17 UTC so the holder count stays current. Add `BASESCAN_API_KEY` under
+  **Settings → Secrets and variables → Actions** to use Basescan.
 
 GitHub Pages must be set to **Settings → Pages → Build and deployment → Source: GitHub Actions** (the old setup served the repository root directly). The custom domain comes from `public/CNAME`.
 
